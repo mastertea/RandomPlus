@@ -49,3 +49,7 @@ Temporary Items
 Source/BetterAnimalsTab/obj/Debug/BetterAnimalsTab.pdb
 *.cache
 *.pxd
+
+# EditPlus backup files
+*.bak
+
