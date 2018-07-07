@@ -1,0 +1,10 @@
+.vs
+*.userprefs
+bin
+obj
+dist
+Libraries/*
+!Libraries/README.md
+*.user
+*.bat
+!dist.bat
