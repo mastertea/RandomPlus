@@ -1,2 +1,2 @@
 # RandomPlus
-Random Editor - Rimworld mod
+A Rimworld mod for auto rerolling pawns to match a user set specification.
