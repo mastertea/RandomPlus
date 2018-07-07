@@ -10,7 +10,7 @@ using System.Reflection;
 namespace RandomPlus
 {
     [HarmonyPatch(typeof(CharacterCardUtility), "DrawCharacterCard")]
-    class RandomEditButtonPatch
+    class Patch_RandomEditButton
     {
         static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
@@ -29,7 +29,7 @@ namespace RandomPlus
 
             if (startIndex != -1)
             {
-                var methodInfo = typeof(RandomEditButtonPatch)
+                var methodInfo = typeof(Patch_RandomEditButton)
                     .GetMethod("DrawEditButton", BindingFlags.Public | BindingFlags.Static);
                 codes.Insert(startIndex + 2, new CodeInstruction(OpCodes.Call, methodInfo));
             }

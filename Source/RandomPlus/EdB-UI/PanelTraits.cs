@@ -38,7 +38,7 @@ namespace RandomPlus
         {
             get
             {
-                return "Traits".Translate();
+                return "Required Traits";
             }
         }
 

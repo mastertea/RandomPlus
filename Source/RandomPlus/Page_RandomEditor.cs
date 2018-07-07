@@ -43,7 +43,6 @@ namespace RandomPlus
         {
             base.DrawPageTitle(inRect);
             Rect mainRect = base.GetMainRect(inRect, 30f, false);
-            //Widgets.DrawMenuSection(mainRect);
 
             panelSkills.Draw();
             panelTraits.Draw();
@@ -65,11 +64,6 @@ namespace RandomPlus
 
             var dumbLaborRect = new Rect(320 + 20, 156 + 40 + 20 + 20 + 4 + 30 + 4 + 20 + 4 + 20, 320, 20);
             Widgets.CheckboxLabeled(dumbLaborRect, "No Dumb Labor", ref RandomSettings.PawnFilter.NoDumbLabor);
-        }
-
-        protected void ConfirmExit()
-        {
-            this.Close(true);
         }
     }
 }

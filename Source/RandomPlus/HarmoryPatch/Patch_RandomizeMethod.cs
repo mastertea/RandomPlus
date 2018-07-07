@@ -10,7 +10,7 @@ using System.Reflection;
 namespace RandomPlus
 {
     [HarmonyPatch(typeof(Page_ConfigureStartingPawns), "RandomizeCurPawn")]
-    class RandomizeMethodPatch
+    class Patch_RandomizeMethod
     {
         static void Prefix()
         {
@@ -25,9 +25,6 @@ namespace RandomPlus
                 .GetField("curPawn", BindingFlags.NonPublic | BindingFlags.Instance);
             var randomizeInPlaceMethodInfo = typeof(StartingPawnUtility)
                 .GetMethod("RandomizeInPlace", BindingFlags.Public | BindingFlags.Static);
-
-            //Log.Message(curPawnFieldInfo.Name);
-            //Log.Message(randomizeInPlaceMethodInfo.Name);
 
             var codes = new List<CodeInstruction>(instructions);
 

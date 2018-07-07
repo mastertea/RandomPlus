@@ -26,14 +26,13 @@ namespace RandomPlus
         {
             get
             {
-                return "Skills".Translate();
+                return "Minimum Skill Level";
             }
         }
 
         private static Color ColorSkillDisabled = new Color(1f, 1f, 1f, 0.5f);
 
         protected static Rect RectButtonClearSkills;
-        protected static Rect RectButtonResetSkills;
         protected static Rect RectLabel;
         protected static Rect RectPassion;
         protected static Rect RectSkillBar;
@@ -74,8 +73,7 @@ namespace RandomPlus
             Vector2 skillBarSize = new Vector2(availableContentWidth - passionSize.x - passionPadding
                 - arrowsWidth - maxLabelSize.x - labelPadding, 22);
 
-            RectButtonClearSkills = new Rect(PanelRect.width - 65, 9, 20, 20);
-            RectButtonResetSkills = new Rect(PanelRect.width - 38, 8, 23, 21);
+            RectButtonClearSkills = new Rect(PanelRect.width - 38, 8, 23, 21);
             RectLabel = new Rect(0, 0, maxLabelSize.x, maxLabelSize.y);
             RectPassion = new Rect(RectLabel.xMax + labelPadding, (maxLabelSize.y * 0.5f - passionSize.y * 0.5f),
                 passionSize.x, passionSize.y);
@@ -98,23 +96,12 @@ namespace RandomPlus
 
             // Clear button
             Style.SetGUIColorForButton(RectButtonClearSkills);
-            GUI.DrawTexture(RectButtonResetSkills, Textures.TextureButtonClearSkills);
-            if (Widgets.ButtonInvisible(RectButtonResetSkills, false))
+            GUI.DrawTexture(RectButtonClearSkills, Textures.TextureButtonClearSkills);
+            if (Widgets.ButtonInvisible(RectButtonClearSkills, false))
             {
                 SoundDefOf.Tick_Low.PlayOneShotOnCamera();
                 pawnFilter.ResetSkills();
             }
-            //TooltipHandler.TipRegion(RectButtonClearSkills, "EdB.PC.Panel.Skills.ClearTip".Translate());
-
-            // Reset button
-            //Style.SetGUIColorForButton(RectButtonResetSkills);
-            //GUI.DrawTexture(RectButtonResetSkills, Textures.TextureButtonReset);
-            //if (Widgets.ButtonInvisible(RectButtonResetSkills, false))
-            //{
-            //    SoundDefOf.Tick_Low.PlayOneShotOnCamera();
-            //    pawnFilter.Reset();
-            //}
-            //TooltipHandler.TipRegion(RectButtonResetSkills, "EdB.PC.Panel.Skills.ResetTip".Translate());
             
             int skillCount = pawnFilter.skillFilterList.Count;
             float rowHeight = 26;
@@ -349,17 +336,14 @@ namespace RandomPlus
             if (filter.passion == Passion.None)
             {
                 filter.passion = Passion.Minor;
-                //SkillPassionUpdated(filter.skillDef, Passion.Minor);
             }
             else if (filter.passion == Passion.Minor)
             {
                 filter.passion = Passion.Major;
-                //SkillPassionUpdated(filter.skillDef, Passion.Major);
             }
             else if (filter.passion == Passion.Major)
             {
                 filter.passion = Passion.None;
-                //SkillPassionUpdated(filter.skillDef, Passion.None);
             }
         }
 
@@ -368,17 +352,14 @@ namespace RandomPlus
             if (filter.passion == Passion.None)
             {
                 filter.passion = Passion.Major;
-                //SkillPassionUpdated(filter.skillDef, Passion.Major);
             }
             else if (filter.passion == Passion.Minor)
             {
                 filter.passion = Passion.None;
-                //SkillPassionUpdated(filter.skillDef, Passion.None);
             }
             else if (filter.passion == Passion.Major)
             {
                 filter.passion = Passion.Minor;
-                //SkillPassionUpdated(filter.skillDef, Passion.Minor);
             }
         }
 

@@ -120,10 +120,5 @@ namespace RandomPlus
                 }
             }) != null;
         }
-
-        //public static int RandomRerollLimit()
-        //{
-        //    return RandomRerollLimit1;
-        //}
     }
 }
