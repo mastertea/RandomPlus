@@ -3,6 +3,7 @@ using RimWorld;
 using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 namespace RandomPlus
 {
@@ -96,6 +97,7 @@ namespace RandomPlus
                 (pawn.story.CombinedDisabledWorkTags & WorkTags.ManualDumb) == WorkTags.ManualDumb)
                 return false;
 
+            //GC.Collect();
             return true;
         }
 
