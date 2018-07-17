@@ -51,6 +51,8 @@ namespace RandomPlus
 
         public static bool CheckPawnIsSatisfied(Pawn pawn)
         {
+            Log.Message(pawn.ageTracker.AgeBiologicalYears.ToString());
+
             if (RandomRerollCounter() >= RandomRerollLimit())
             {
                 return true;
@@ -96,6 +98,14 @@ namespace RandomPlus
             if (PawnFilter.NoDumbLabor &&
                 (pawn.story.CombinedDisabledWorkTags & WorkTags.ManualDumb) == WorkTags.ManualDumb)
                 return false;
+
+            if (PawnFilter.AgeRange.min != PawnFilter.MinAgeDefault || 
+                PawnFilter.AgeRange.max != PawnFilter.MaxAgeDefault)
+            {
+                if (PawnFilter.AgeRange.min > pawn.ageTracker.AgeBiologicalYears || 
+                    PawnFilter.AgeRange.max < pawn.ageTracker.AgeBiologicalYears)
+                    return false;
+            }
 
             //GC.Collect();
             return true;

@@ -35,6 +35,10 @@ namespace RandomPlus
         public bool NoHealthConditions;
         public bool NoDumbLabor;
 
+        public static readonly int MinAgeDefault = 15;
+        public static readonly int MaxAgeDefault = 120;
+        public IntRange AgeRange;
+
         public PawnFilter()
         {
             ResetAll();
@@ -58,6 +62,7 @@ namespace RandomPlus
         {
             ResetSkills();
             ResetTraits();
+            AgeRange = new IntRange(MinAgeDefault, MaxAgeDefault);
         }
     }
 }
