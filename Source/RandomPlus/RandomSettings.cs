@@ -51,8 +51,6 @@ namespace RandomPlus
 
         public static bool CheckPawnIsSatisfied(Pawn pawn)
         {
-            Log.Message(pawn.ageTracker.AgeBiologicalYears.ToString());
-
             if (RandomRerollCounter() >= RandomRerollLimit())
             {
                 return true;
