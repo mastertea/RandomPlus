@@ -50,7 +50,7 @@ namespace RandomPlus
 
                 codes[startIndex + 8] = new CodeInstruction(OpCodes.Call, randomLimitRerollMethodInfo);
                 
-                var startLoopLocation = codes[startIndex + 13].operand;
+                var startLoopLocation = codes[startIndex + 12].operand;
 
                 var newCode = new List<CodeInstruction>();
                 newCode.Add(new CodeInstruction(OpCodes.Nop));

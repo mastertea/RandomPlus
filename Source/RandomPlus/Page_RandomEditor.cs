@@ -18,9 +18,6 @@ namespace RandomPlus
             this.closeOnClickedOutside = true;
             this.doCloseButton = true;
             this.doCloseX = true;
-
-            panelSkills = new PanelSkills(RandomSettings.PawnFilter);
-            panelTraits = new PanelTraits(RandomSettings.PawnFilter);
         }
 
         public override Vector2 InitialSize
@@ -39,9 +36,16 @@ namespace RandomPlus
             }
         }
 
+        public override void PreOpen()
+        {
+            base.PreOpen();
+            panelSkills = new PanelSkills(RandomSettings.PawnFilter);
+            panelTraits = new PanelTraits(RandomSettings.PawnFilter);
+        }
+
         public override void DoWindowContents(Rect inRect)
         {
-            base.DrawPageTitle(inRect);
+            this.DrawPageTitle(inRect);
             Rect mainRect = base.GetMainRect(inRect, 30f, false);
 
             panelSkills.Draw();
@@ -77,10 +81,6 @@ namespace RandomPlus
 
             var dumbLaborRect = healthRect.OffsetBy(0, 24);
             Widgets.CheckboxLabeled(dumbLaborRect, "No Dumb Labor", ref RandomSettings.PawnFilter.NoDumbLabor);
-
-            
-
-            
         }
     }
 }
