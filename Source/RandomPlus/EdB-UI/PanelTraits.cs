@@ -15,6 +15,7 @@ namespace RandomPlus
         protected List<Field> fields = new List<Field>();
         protected List<Trait> traitsToRemove = new List<Trait>();
         protected HashSet<TraitDef> disallowedTraitDefs = new HashSet<TraitDef>();
+        protected HashSet<String> disallowedTraitLabels = new HashSet<String>();
         protected Dictionary<Trait, string> conflictingTraitList = new Dictionary<Trait, string>();
 
         protected Vector2 SizeField;
@@ -48,7 +49,7 @@ namespace RandomPlus
 
             float panelPadding = 10;
             float fieldHeight = 28;
-            SizeTrait = new Vector2(PanelRect.width - panelPadding * 2, fieldHeight + SizeFieldPadding.y * 2);
+            SizeTrait = new Vector2(PanelRect.width - panelPadding * 2 - 20, fieldHeight + SizeFieldPadding.y * 2);
             SizeField = new Vector2(SizeTrait.x - SizeFieldPadding.x * 2, SizeTrait.y - SizeFieldPadding.y * 2);
 
             RectScrollFrame = new Rect(panelPadding, BodyRect.y,
@@ -75,7 +76,7 @@ namespace RandomPlus
                 scrollView.Begin(RectScrollView);
 
                 int index = 0;
-                foreach (Trait trait in pawnFilter.Traits)
+                foreach (TraitContainer traitContainer in pawnFilter.Traits)
                 {
                     if (index >= fields.Count)
                     {
@@ -98,9 +99,9 @@ namespace RandomPlus
                     fieldClickRect.width = fieldClickRect.width - 36;
                     field.ClickRect = fieldClickRect;
 
-                    if (trait != null)
+                    if (traitContainer != null)
                     {
-                        field.Label = trait.LabelCap;
+                        field.Label = traitContainer.trait.LabelCap + LabelForTraitFilter(index);
                         //field.Tip = GetTraitTip(trait, currentPawn);
                     }
                     else
@@ -108,7 +109,7 @@ namespace RandomPlus
                         field.Label = null;
                         field.Tip = null;
                     }
-                    Trait localTrait = trait;
+                    Trait localTrait = traitContainer.trait;
                     int localIndex = index;
                     field.ClickAction = () => {
                         Trait originalTrait = localTrait;
@@ -133,7 +134,7 @@ namespace RandomPlus
                                 selectedTrait = t;
                             },
                             EnabledFunc = (Trait t) => {
-                                return !disallowedTraitDefs.Contains(t.def);
+                                return !(disallowedTraitDefs.Contains(t.def) || disallowedTraitLabels.Contains(t.Label));
                             },
                             CloseAction = () => {
                                 TraitUpdated(localIndex, selectedTrait);
@@ -169,7 +170,18 @@ namespace RandomPlus
                     if (Widgets.ButtonInvisible(deleteRect, false))
                     {
                         SoundDefOf.Tick_Tiny.PlayOneShotOnCamera();
-                        traitsToRemove.Add(trait);
+                        traitsToRemove.Add(traitContainer.trait);
+                    }
+
+                    // cycling required/optional/exluded trait filter button
+                    Rect traitFilterTypeRect = new Rect(field.Rect.xMax + 12, field.Rect.y + field.Rect.HalfHeight() - 6, 12, 12);
+                    GUI.color = traitFilterTypeRect.Contains(Event.current.mousePosition) ?
+                        Style.ColorButtonHighlight : Style.ColorButton;
+                    GUI.DrawTexture(traitFilterTypeRect, Textures.TextureButtonReset);
+                    if (Widgets.ButtonInvisible(traitFilterTypeRect, false))
+                    {
+                        SoundDefOf.Tick_Tiny.PlayOneShotOnCamera();
+                        CycleTraitFilter(index);
                     }
 
                     index++;
@@ -207,7 +219,7 @@ namespace RandomPlus
             Rect addRect = new Rect(PanelRect.width - 24, 12, 16, 16);
             Style.SetGUIColorForButton(addRect);
             int traitCount = pawnFilter.Traits.Count();
-            bool addButtonEnabled = (traitCount < 3);
+            bool addButtonEnabled = (traitCount < providerTraits.Traits.Count());
             if (!addButtonEnabled)
             {
                 GUI.color = Style.ColorButtonDisabled;
@@ -235,7 +247,7 @@ namespace RandomPlus
                         selectedTrait = t;
                     },
                     EnabledFunc = (Trait t) => {
-                        return !disallowedTraitDefs.Contains(t.def);
+                        return !(disallowedTraitDefs.Contains(t.def) || disallowedTraitLabels.Contains(t.Label));
                     },
                     CloseAction = () => {
                         if (selectedTrait != null)
@@ -259,32 +271,39 @@ namespace RandomPlus
 
         public void TraitAdded(Trait trait)
         {
-            pawnFilter.Traits.Add(trait);
+            pawnFilter.Traits.Add(new TraitContainer(trait));
         }
 
         public void TraitUpdated(int index, Trait trait)
         {
-            pawnFilter.Traits[index] = trait;
+            pawnFilter.Traits[index].trait = trait;
         }
 
         public void TraitRemoved(Trait trait)
         {
-            pawnFilter.Traits.Remove(trait);
+            pawnFilter.Traits.Remove(new TraitContainer(trait));
         }
 
         protected void ComputeDisallowedTraits(Trait traitToReplace)
         {
             disallowedTraitDefs.Clear();
-            foreach (Trait t in pawnFilter.Traits)
+            disallowedTraitLabels.Clear();
+
+            foreach (TraitContainer tc in pawnFilter.Traits)
             {
-                if (t == traitToReplace)
+                if (tc.trait == traitToReplace)
                 {
                     continue;
                 }
-                disallowedTraitDefs.Add(t.def);
-                if (t.def.conflictingTraits != null)
+
+                if (tc.traitFilter == TraitContainer.TraitFilterType.Required)
+                    disallowedTraitDefs.Add(tc.trait.def);
+                else
+                    disallowedTraitLabels.Add(tc.trait.Label);
+
+                if (tc.trait.def.conflictingTraits != null)
                 {
-                    foreach (var c in t.def.conflictingTraits)
+                    foreach (var c in tc.trait.def.conflictingTraits)
                     {
                         disallowedTraitDefs.Add(c);
                     }
@@ -294,7 +313,7 @@ namespace RandomPlus
 
         protected void SelectNextTrait(int traitIndex)
         {
-            Trait currentTrait = pawnFilter.Traits[traitIndex];
+            Trait currentTrait = pawnFilter.Traits[traitIndex].trait;
             ComputeDisallowedTraits(currentTrait);
             int index = -1;
             if (currentTrait != null)
@@ -317,7 +336,10 @@ namespace RandomPlus
                     break;
                 }
             }
-            while (index != -1 && (pawnFilter.Traits.Contains(providerTraits.Traits[index]) || disallowedTraitDefs.Contains(providerTraits.Traits[index].def)));
+            while (index != -1 &&
+                   (pawnFilter.Traits.Contains(new TraitContainer(providerTraits.Traits[index])) ||
+                   disallowedTraitDefs.Contains(providerTraits.Traits[index].def) ||
+                   disallowedTraitLabels.Contains(providerTraits.Traits[index].Label)));
 
             Trait newTrait = null;
             if (index > -1)
@@ -329,7 +351,7 @@ namespace RandomPlus
 
         protected void SelectPreviousTrait(int traitIndex)
         {
-            Trait currentTrait = pawnFilter.Traits[traitIndex];
+            Trait currentTrait = pawnFilter.Traits[traitIndex].trait;
             ComputeDisallowedTraits(currentTrait);
             int index = -1;
             if (currentTrait != null)
@@ -352,7 +374,10 @@ namespace RandomPlus
                     break;
                 }
             }
-            while (index != -1 && (pawnFilter.Traits.Contains(providerTraits.Traits[index]) || disallowedTraitDefs.Contains(providerTraits.Traits[index].def)));
+            while (index != -1 &&
+                   (pawnFilter.Traits.Contains(new TraitContainer(providerTraits.Traits[index])) ||
+                   disallowedTraitDefs.Contains(providerTraits.Traits[index].def) ||
+                   disallowedTraitLabels.Contains(providerTraits.Traits[index].Label)));
 
             Trait newTrait = null;
             if (index > -1)
@@ -374,6 +399,44 @@ namespace RandomPlus
         public void ScrollToBottom()
         {
             scrollView.ScrollToBottom();
+        }
+
+        protected void CycleTraitFilter(int index)
+        {
+            if (index < 0 || index >= pawnFilter.Traits.Count())
+                return;
+
+            TraitContainer.TraitFilterType traitFilter = pawnFilter.Traits[index].traitFilter;
+            
+            switch (traitFilter)
+            {
+                case TraitContainer.TraitFilterType.Required:
+                    traitFilter = TraitContainer.TraitFilterType.Optional;
+                    break;
+                case TraitContainer.TraitFilterType.Optional:
+                    traitFilter = TraitContainer.TraitFilterType.Excluded;
+                    break;
+                case TraitContainer.TraitFilterType.Excluded:
+                    traitFilter = TraitContainer.TraitFilterType.Required;
+                    break;
+            }
+
+            pawnFilter.Traits[index].traitFilter = traitFilter;
+        }
+
+        protected String LabelForTraitFilter(int index)
+        {
+            if (index < 0 || index >= pawnFilter.Traits.Count())
+                return "";
+
+            switch (pawnFilter.Traits[index].traitFilter)
+            {
+                case TraitContainer.TraitFilterType.Required: return " (Req)";
+                case TraitContainer.TraitFilterType.Optional: return " (Opt)";
+                case TraitContainer.TraitFilterType.Excluded: return " (Excl)";
+            }
+
+            return "";
         }
     }
 }

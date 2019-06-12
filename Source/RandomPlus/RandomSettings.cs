@@ -9,11 +9,11 @@ namespace RandomPlus
 {
     public class RandomSettings
     {
-        public static readonly int[] RANDOM_REROLL_LIMIT_OPTIONS = new int[] { 50, 200, 500, 1000 };
+        public static readonly int[] RANDOM_REROLL_LIMIT_OPTIONS = new int[] { 100, 1000, 10000, 50000 };
 
         private static PawnFilter pawnFilter;
         
-        private static int randomRerollLimit = 200;
+        private static int randomRerollLimit = 1000;
         private static int randomRerollCounter = 0;
 
         public static PawnFilter PawnFilter
@@ -56,6 +56,11 @@ namespace RandomPlus
                 return true;
             }
             randomRerollCounter++;
+
+            if (PawnFilter.gender != Gender.None && pawn.gender != Gender.None)
+                if (PawnFilter.gender != pawn.gender)
+                    return false;
+
             List<SkillRecord> skillList = pawn.skills.skills;
 
             var skillFilterList = PawnFilter.skillFilterList;
@@ -80,14 +85,34 @@ namespace RandomPlus
                 }
             }
 
+            bool needsOptionalTrait = false;
+            bool hasOptionalTrait = false;
+
             var traitFilterList = PawnFilter.Traits;
-            foreach (var trait in traitFilterList)
+            foreach (var traitContainer in traitFilterList)
             {
-                if (!HasTrait(pawn, trait))
+                bool has = HasTrait(pawn, traitContainer.trait);
+
+                switch (traitContainer.traitFilter)
                 {
-                    return false;
+                    case TraitContainer.TraitFilterType.Required:
+                        if (!has)
+                            return false;
+                        break;
+                    case TraitContainer.TraitFilterType.Optional:
+                        needsOptionalTrait = true;
+                        if (has)
+                            hasOptionalTrait = true;
+                        break;
+                    case TraitContainer.TraitFilterType.Excluded:
+                        if (has)
+                            return false;
+                        break;
                 }
             }
+
+            if (needsOptionalTrait && !hasOptionalTrait)
+                return false;
 
             if (PawnFilter.NoHealthConditions &&
                 pawn.health.hediffSet.hediffs.Count > 0)
@@ -129,6 +154,11 @@ namespace RandomPlus
                     return false;
                 }
             }) != null;
+        }
+
+        public static void SetGenderFilter(Gender gender)
+        {
+            PawnFilter.gender = gender;
         }
     }
 }
