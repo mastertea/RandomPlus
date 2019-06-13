@@ -53,14 +53,15 @@ namespace RandomPlus
 
             var randomRerollLimitLabelRect = new Rect(320 + 20, 156 + 40 + 20, 320, 20);
             Widgets.Label(randomRerollLimitLabelRect, "Random Reroll Limit: ");
-            var randomRerollLimitRect = new Rect(320 + 20, 156 + 40 + 20 + 20 + 4, 60, 30);
+            var randomRerollLimitRect = new Rect(320 + 20, 156 + 40 + 20 + 20 + 4, 55, 30);
             foreach (var option in RandomSettings.RANDOM_REROLL_LIMIT_OPTIONS)
             {
                 bool isSelected = Widgets.RadioButtonLabeled(randomRerollLimitRect, option.ToString(), RandomSettings.RandomRerollLimit() == option);
                 if(isSelected)
                     RandomSettings.SetRandomRerollLimit(option);
                 randomRerollLimitRect = new Rect(randomRerollLimitRect);
-                randomRerollLimitRect.x += 60 + 20;
+                randomRerollLimitRect.x += randomRerollLimitRect.width + 20;
+                randomRerollLimitRect.width += 6;
             }
 
             var ageLabelRect = randomRerollLimitLabelRect.OffsetBy(0, 68);
@@ -75,12 +76,37 @@ namespace RandomPlus
                 PawnFilter.MinAgeDefault, PawnFilter.MaxAgeDefault, "", 2);
 
             var healthRect = ageRangeRect.OffsetBy(0, 34);
-            healthRect.width = 320;
+            healthRect.width = 315;
             healthRect.height = 20;
             Widgets.CheckboxLabeled(healthRect, "No Health Conditions", ref RandomSettings.PawnFilter.NoHealthConditions);
 
             var dumbLaborRect = healthRect.OffsetBy(0, 24);
-            Widgets.CheckboxLabeled(dumbLaborRect, "No Dumb Labor", ref RandomSettings.PawnFilter.NoDumbLabor);
+            Widgets.CheckboxLabeled(dumbLaborRect, "No Dumb Labor Incapability", ref RandomSettings.PawnFilter.NoDumbLabor);
+
+            var genderLabelRect = dumbLaborRect.OffsetBy(0, 30);
+            genderLabelRect.width = 87;
+            Widgets.Label(genderLabelRect, "Gender:");
+
+            var genderAnyRect = genderLabelRect.OffsetBy(70, 1);
+            genderAnyRect.width = 60;
+            bool genderIsSelected = Widgets.RadioButtonLabeled(
+                genderAnyRect, "Any", RandomSettings.PawnFilter.gender == Gender.None);
+            if (genderIsSelected)
+                RandomSettings.SetGenderFilter(Gender.None);
+
+            var genderMaleRect = genderAnyRect.OffsetBy(genderAnyRect.width + 20, 0);
+            genderMaleRect.width = 65;
+            genderIsSelected = Widgets.RadioButtonLabeled(
+                genderMaleRect, "Male", RandomSettings.PawnFilter.gender == Gender.Male);
+            if (genderIsSelected)
+                RandomSettings.SetGenderFilter(Gender.Male);
+
+            var genderFemaleRect = genderMaleRect.OffsetBy(genderMaleRect.width + 20, 0);
+            genderFemaleRect.width = 80;
+            genderIsSelected = Widgets.RadioButtonLabeled(
+                genderFemaleRect, "Female", RandomSettings.PawnFilter.gender == Gender.Female);
+            if (genderIsSelected)
+                RandomSettings.SetGenderFilter(Gender.Female);
         }
     }
 }
