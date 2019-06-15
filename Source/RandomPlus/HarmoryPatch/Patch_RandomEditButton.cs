@@ -41,7 +41,7 @@ namespace RandomPlus
         {
             Rect editButtonRect = new Rect(620f, 0.0f, 50f, 30f);
 
-            if (Widgets.ButtonText(editButtonRect, "Edit", true, false, true))
+            if (Widgets.ButtonText(editButtonRect, "Filter", true, false, true))
             {
                 var page = new Page_RandomEditor();
                 Find.WindowStack.Add(page);
