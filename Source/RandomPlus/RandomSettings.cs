@@ -118,6 +118,9 @@ namespace RandomPlus
                 pawn.health.hediffSet.hediffs.Count > 0)
                 return false;
 
+            if (PawnFilter.NoIncapabilities && pawn.story.CombinedDisabledWorkTags != WorkTags.None)
+                return false;
+
             if (PawnFilter.NoDumbLabor &&
                 (pawn.story.CombinedDisabledWorkTags & WorkTags.ManualDumb) == WorkTags.ManualDumb)
                 return false;

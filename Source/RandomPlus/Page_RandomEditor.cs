@@ -24,7 +24,7 @@ namespace RandomPlus
         {
             get
             {
-                return new Vector2(694f, 40 + 362 + 100);
+                return new Vector2(694f, 40 + 362 + 120);
             }
         }
 
@@ -80,7 +80,10 @@ namespace RandomPlus
             healthRect.height = 20;
             Widgets.CheckboxLabeled(healthRect, "No Health Conditions", ref RandomSettings.PawnFilter.NoHealthConditions);
 
-            var dumbLaborRect = healthRect.OffsetBy(0, 24);
+            var incapableRect = healthRect.OffsetBy(0, 24);
+            Widgets.CheckboxLabeled(incapableRect, "No Incapabilities", ref RandomSettings.PawnFilter.NoIncapabilities);
+
+            var dumbLaborRect = incapableRect.OffsetBy(0, 24);
             Widgets.CheckboxLabeled(dumbLaborRect, "No Dumb Labor Incapability", ref RandomSettings.PawnFilter.NoDumbLabor);
 
             var genderLabelRect = dumbLaborRect.OffsetBy(0, 30);
