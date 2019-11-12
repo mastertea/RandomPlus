@@ -89,7 +89,7 @@ namespace RandomPlus
         public bool NoDumbLabor;
         public bool NoIncapabilities;
 
-        public static readonly int MinAgeDefault = 15;
+        public static readonly int MinAgeDefault = 0;
         public static readonly int MaxAgeDefault = 120;
         public IntRange AgeRange;
         public Gender gender;
