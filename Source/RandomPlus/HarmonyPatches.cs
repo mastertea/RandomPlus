@@ -1,4 +1,4 @@
-﻿using Harmony;
+﻿using HarmonyLib;
 using RimWorld;
 using System.Collections.Generic;
 using System.Reflection;
@@ -9,18 +9,19 @@ using Verse;
 namespace RandomPlus
 {
     [StaticConstructorOnStartup]
-    internal static class Main
+    class HarmonyPatches
     {
-        static Main()
+        static HarmonyPatches()
         {
-            var harmony = HarmonyInstance.Create("RandomPlus");
+            var harmony = new Harmony("RandomPlus");
             harmony.PatchAll(Assembly.GetExecutingAssembly());
         }
     }
 
     [HarmonyPatch(typeof(Page_ConfigureStartingPawns), "PreOpen")]
-    class Patch_Init
+    class Patch_InitRandomSettings
     {
+        [HarmonyPostfix]
         static void Postfix()
         {
             RandomSettings.Init();
@@ -30,11 +31,13 @@ namespace RandomPlus
     [HarmonyPatch(typeof(Page_ConfigureStartingPawns), "RandomizeCurPawn")]
     class Patch_RandomizeMethod
     {
+        [HarmonyPrefix]
         static void Prefix()
         {
             RandomSettings.ResetRerollCounter();
         }
 
+        [HarmonyTranspiler]
         static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             int startIndex = -1;
@@ -89,6 +92,7 @@ namespace RandomPlus
     [HarmonyPatch(typeof(CharacterCardUtility), "DrawCharacterCard")]
     class Patch_RandomEditButton
     {
+        [HarmonyTranspiler]
         static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             int startIndex = -1;
@@ -97,7 +101,7 @@ namespace RandomPlus
             for (int i = 0; i < codes.Count; i++)
             {
                 if (codes[i].opcode == OpCodes.Ldarg_2 &&
-                    codes[i + 1].opcode == OpCodes.Brfalse)
+                    codes[i + 1].opcode == OpCodes.Brfalse_S)
                 {
                     startIndex = i;
                     break;
