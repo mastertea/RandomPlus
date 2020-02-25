@@ -48,8 +48,8 @@ namespace RandomPlus
 
         static public bool operator ==(TraitContainer a, TraitContainer b)
         {
-            bool aNull = a is null;
-            bool bNull = b is null;
+            bool aNull = a == null;
+            bool bNull = b == null;
 
             if (aNull && bNull)
                 return true;
@@ -66,7 +66,7 @@ namespace RandomPlus
 
         public override bool Equals(object obj)
         {
-            if (obj is null)
+            if (obj == null)
                 return false;
             else if (obj is TraitContainer)
                 return this.trait == (obj as TraitContainer).trait;

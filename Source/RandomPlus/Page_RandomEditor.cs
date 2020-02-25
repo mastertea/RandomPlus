@@ -1,6 +1,4 @@
-﻿using System;
-using Harmony;
-using RimWorld;
+﻿using RimWorld;
 using UnityEngine;
 using Verse;
 
@@ -24,7 +22,7 @@ namespace RandomPlus
         {
             get
             {
-                return new Vector2(694 + 100, 40 + 362 + 140);
+                return new Vector2(694, 40 + 362 + 140);
             }
         }
 

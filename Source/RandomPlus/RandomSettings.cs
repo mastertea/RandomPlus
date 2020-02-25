@@ -2,8 +2,6 @@
 using RimWorld;
 using System.Linq;
 using System.Collections.Generic;
-using UnityEngine;
-using System;
 
 namespace RandomPlus
 {
@@ -118,11 +116,11 @@ namespace RandomPlus
                 pawn.health.hediffSet.hediffs.Count > 0)
                 return false;
 
-            if (PawnFilter.NoIncapabilities && pawn.story.CombinedDisabledWorkTags != WorkTags.None)
+            if (PawnFilter.NoIncapabilities && pawn.story.DisabledWorkTagsBackstoryAndTraits != WorkTags.None)
                 return false;
 
             if (PawnFilter.NoDumbLabor &&
-                (pawn.story.CombinedDisabledWorkTags & WorkTags.ManualDumb) == WorkTags.ManualDumb)
+                (pawn.story.DisabledWorkTagsBackstoryAndTraits & WorkTags.ManualDumb) == WorkTags.ManualDumb)
                 return false;
 
             if (PawnFilter.AgeRange.min != PawnFilter.MinAgeDefault || 
