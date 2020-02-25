@@ -24,7 +24,7 @@ namespace RandomPlus
         {
             get
             {
-                return new Vector2(694f, 40 + 362 + 140);
+                return new Vector2(694 + 100, 40 + 362 + 140);
             }
         }
 
@@ -120,6 +120,10 @@ namespace RandomPlus
                 genderFemaleRect, "Female", RandomSettings.PawnFilter.gender == Gender.Female);
             if (genderIsSelected)
                 RandomSettings.SetGenderFilter(Gender.Female);
+        }
+
+        public void drawSpecialFilterSection() { 
+
         }
     }
 }
