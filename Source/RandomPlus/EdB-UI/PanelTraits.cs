@@ -25,7 +25,7 @@ namespace RandomPlus
         protected Rect RectScrollFrame;
         protected Rect RectScrollView;
 
-        protected PawnFilter pawnFilter;
+        protected PawnFilter pawnFilter = new PawnFilter();
 
         public PanelTraits(PawnFilter pawnFilter)
         {
@@ -102,56 +102,65 @@ namespace RandomPlus
                     if (traitContainer != null)
                     {
                         field.Label = traitContainer.trait.LabelCap + LabelForTraitFilter(index);
-                        //field.Tip = GetTraitTip(trait, currentPawn);
                     }
                     else
                     {
                         field.Label = null;
-                        field.Tip = null;
                     }
                     Trait localTrait = traitContainer.trait;
                     int localIndex = index;
-                    field.ClickAction = () => {
+                    field.ClickAction = () =>
+                    {
                         Trait originalTrait = localTrait;
                         Trait selectedTrait = originalTrait;
                         Dialog_Options<Trait> dialog = new Dialog_Options<Trait>(providerTraits.Traits)
                         {
-                            NameFunc = (Trait t) => {
+                            NameFunc = (Trait t) =>
+                            {
                                 return t.LabelCap;
                             },
-                            DescriptionFunc = (Trait t) => {
+                            DescriptionFunc = (Trait t) =>
+                            {
                                 return null;
                                 //return GetTraitTip(t, currentPawn);
                             },
-                            SelectedFunc = (Trait t) => {
+                            SelectedFunc = (Trait t) =>
+                            {
                                 if ((selectedTrait == null || t == null) && selectedTrait != t)
                                 {
                                     return false;
                                 }
                                 return selectedTrait.def == t.def && selectedTrait.Label == t.Label;
                             },
-                            SelectAction = (Trait t) => {
+                            SelectAction = (Trait t) =>
+                            {
                                 selectedTrait = t;
                             },
-                            EnabledFunc = (Trait t) => {
+                            EnabledFunc = (Trait t) =>
+                            {
                                 return !(disallowedTraitDefs.Contains(t.def) || disallowedTraitLabels.Contains(t.Label));
                             },
-                            CloseAction = () => {
+                            CloseAction = () =>
+                            {
                                 TraitUpdated(localIndex, selectedTrait);
                             },
-                            NoneSelectedFunc = () => {
+                            NoneSelectedFunc = () =>
+                            {
                                 return selectedTrait == null;
                             },
-                            SelectNoneAction = () => {
+                            SelectNoneAction = () =>
+                            {
                                 selectedTrait = null;
                             }
                         };
                         Find.WindowStack.Add(dialog);
                     };
-                    field.PreviousAction = () => {
+                    field.PreviousAction = () =>
+                    {
                         SelectPreviousTrait(index);
                     };
-                    field.NextAction = () => {
+                    field.NextAction = () =>
+                    {
                         SelectNextTrait(index);
                     };
                     field.Draw();
@@ -173,7 +182,7 @@ namespace RandomPlus
                         traitsToRemove.Add(traitContainer.trait);
                     }
 
-                    // cycling required/optional/exluded trait filter button
+                    //cycling required/ optional / exluded trait filter button
                     Rect traitFilterTypeRect = new Rect(field.Rect.xMax + 12, field.Rect.y + field.Rect.HalfHeight() - 6, 12, 12);
                     GUI.color = traitFilterTypeRect.Contains(Event.current.mousePosition) ?
                         Style.ColorButtonHighlight : Style.ColorButton;
@@ -197,23 +206,6 @@ namespace RandomPlus
             }
 
             GUI.color = Color.white;
-
-            // Randomize traits button.
-            //Rect randomizeRect = new Rect(PanelRect.width - 32, 9, 22, 22);
-            //if (randomizeRect.Contains(Event.current.mousePosition))
-            //{
-            //    GUI.color = Style.ColorButtonHighlight;
-            //}
-            //else
-            //{
-            //    GUI.color = Style.ColorButton;
-            //}
-            //GUI.DrawTexture(randomizeRect, Textures.TextureButtonRandom);
-            //if (Widgets.ButtonInvisible(randomizeRect, false))
-            //{
-            //    SoundDefOf.Tick_Low.PlayOneShotOnCamera();
-            //    TraitsRandomized();
-            //}
 
             // Add trait button.
             Rect addRect = new Rect(PanelRect.width - 24, 12, 16, 16);
@@ -281,7 +273,8 @@ namespace RandomPlus
 
         public void TraitRemoved(Trait trait)
         {
-            pawnFilter.Traits.Remove(new TraitContainer(trait));
+            var needToRemoveTC = pawnFilter.Traits.FirstOrDefault(tc => tc.trait == trait);
+            pawnFilter.Traits.Remove(needToRemoveTC);
         }
 
         protected void ComputeDisallowedTraits(Trait traitToReplace)

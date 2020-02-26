@@ -45,39 +45,6 @@ namespace RandomPlus
         {
             this.trait = trait;
         }
-
-        static public bool operator ==(TraitContainer a, TraitContainer b)
-        {
-            bool aNull = a == null;
-            bool bNull = b == null;
-
-            if (aNull && bNull)
-                return true;
-            else if (!(aNull || bNull) && a.trait == b.trait)
-                return true;
-
-            return false;
-        }
-
-        static public bool operator !=(TraitContainer a, TraitContainer b)
-        {
-            return !(a == b);
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (obj == null)
-                return false;
-            else if (obj is TraitContainer)
-                return this.trait == (obj as TraitContainer).trait;
-
-            return base.Equals(obj);
-        }
-
-        public override int GetHashCode()
-        {
-            return this.trait.GetHashCode();
-        }
     }
     
 
