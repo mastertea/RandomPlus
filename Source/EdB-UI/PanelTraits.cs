@@ -25,21 +25,19 @@ namespace RandomPlus
         protected Rect RectScrollFrame;
         protected Rect RectScrollView;
 
-        protected PawnFilter pawnFilter = new PawnFilter();
+        protected Rect traitPoolLabelRect;
+        protected Rect traitPoolButtonRect;
 
-        public PanelTraits(PawnFilter pawnFilter)
+        public PanelTraits()
         {
-            this.pawnFilter = pawnFilter;
-            Resize(new Rect(320 + 20, 40,
-                320, 
-                156));
+            Resize(new Rect(340, 40, 320, 180));
         }
 
         public override string PanelHeader
         {
             get
             {
-                return "Required Traits";
+                return "Filter Traits";
             }
         }
 
@@ -54,7 +52,10 @@ namespace RandomPlus
 
             RectScrollFrame = new Rect(panelPadding, BodyRect.y,
                 PanelRect.width - panelPadding * 2, BodyRect.height - panelPadding);
-            RectScrollView = new Rect(0, 0, RectScrollFrame.width, RectScrollFrame.height);
+            RectScrollView = new Rect(0, 0, RectScrollFrame.width, RectScrollFrame.height - 20);
+
+            traitPoolLabelRect = new Rect(8, RectScrollView.y + RectScrollView.height, 200, 30);
+            traitPoolButtonRect = new Rect(190, RectScrollView.y + RectScrollView.height + 1, 104, 20);
         }
 
         protected override void DrawPanelContent()
@@ -66,7 +67,7 @@ namespace RandomPlus
             GUI.BeginGroup(RectScrollFrame);
             try
             {
-                if (pawnFilter.Traits.Count() == 0)
+                if (RandomSettings.PawnFilter.Traits.Count() == 0)
                 {
                     GUI.color = Style.ColorText;
                     Widgets.Label(RectScrollView.InsetBy(6, 0, 0, 0), "EdB.PC.Panel.Traits.None".Translate());
@@ -76,7 +77,7 @@ namespace RandomPlus
                 scrollView.Begin(RectScrollView);
 
                 int index = 0;
-                foreach (TraitContainer traitContainer in pawnFilter.Traits)
+                foreach (TraitContainer traitContainer in RandomSettings.PawnFilter.Traits)
                 {
                     if (index >= fields.Count)
                     {
@@ -202,15 +203,16 @@ namespace RandomPlus
             finally
             {
                 scrollView.End(cursor);
+
+                GUI.color = Color.white;
+                drawTraitPool();
                 GUI.EndGroup();
             }
-
-            GUI.color = Color.white;
 
             // Add trait button.
             Rect addRect = new Rect(PanelRect.width - 24, 12, 16, 16);
             Style.SetGUIColorForButton(addRect);
-            int traitCount = pawnFilter.Traits.Count();
+            int traitCount = RandomSettings.PawnFilter.Traits.Count();
             bool addButtonEnabled = (traitCount < providerTraits.Traits.Count());
             if (!addButtonEnabled)
             {
@@ -263,18 +265,18 @@ namespace RandomPlus
 
         public void TraitAdded(Trait trait)
         {
-            pawnFilter.Traits.Add(new TraitContainer(trait));
+            RandomSettings.PawnFilter.Traits.Add(new TraitContainer(trait));
         }
 
         public void TraitUpdated(int index, Trait trait)
         {
-            pawnFilter.Traits[index].trait = trait;
+            RandomSettings.PawnFilter.Traits[index].trait = trait;
         }
 
         public void TraitRemoved(Trait trait)
         {
-            var needToRemoveTC = pawnFilter.Traits.FirstOrDefault(tc => tc.trait == trait);
-            pawnFilter.Traits.Remove(needToRemoveTC);
+            var needToRemoveTC = RandomSettings.PawnFilter.Traits.FirstOrDefault(tc => tc.trait == trait);
+            RandomSettings.PawnFilter.Traits.Remove(needToRemoveTC);
         }
 
         protected void ComputeDisallowedTraits(Trait traitToReplace)
@@ -282,7 +284,7 @@ namespace RandomPlus
             disallowedTraitDefs.Clear();
             disallowedTraitLabels.Clear();
 
-            foreach (TraitContainer tc in pawnFilter.Traits)
+            foreach (TraitContainer tc in RandomSettings.PawnFilter.Traits)
             {
                 if (tc.trait == traitToReplace)
                 {
@@ -306,7 +308,7 @@ namespace RandomPlus
 
         protected void SelectNextTrait(int traitIndex)
         {
-            Trait currentTrait = pawnFilter.Traits[traitIndex].trait;
+            Trait currentTrait = RandomSettings.PawnFilter.Traits[traitIndex].trait;
             ComputeDisallowedTraits(currentTrait);
             int index = -1;
             if (currentTrait != null)
@@ -330,7 +332,7 @@ namespace RandomPlus
                 }
             }
             while (index != -1 &&
-                   (pawnFilter.Traits.Contains(new TraitContainer(providerTraits.Traits[index])) ||
+                   (RandomSettings.PawnFilter.Traits.Contains(new TraitContainer(providerTraits.Traits[index])) ||
                    disallowedTraitDefs.Contains(providerTraits.Traits[index].def) ||
                    disallowedTraitLabels.Contains(providerTraits.Traits[index].Label)));
 
@@ -344,7 +346,7 @@ namespace RandomPlus
 
         protected void SelectPreviousTrait(int traitIndex)
         {
-            Trait currentTrait = pawnFilter.Traits[traitIndex].trait;
+            Trait currentTrait = RandomSettings.PawnFilter.Traits[traitIndex].trait;
             ComputeDisallowedTraits(currentTrait);
             int index = -1;
             if (currentTrait != null)
@@ -368,7 +370,7 @@ namespace RandomPlus
                 }
             }
             while (index != -1 &&
-                   (pawnFilter.Traits.Contains(new TraitContainer(providerTraits.Traits[index])) ||
+                   (RandomSettings.PawnFilter.Traits.Contains(new TraitContainer(providerTraits.Traits[index])) ||
                    disallowedTraitDefs.Contains(providerTraits.Traits[index].def) ||
                    disallowedTraitLabels.Contains(providerTraits.Traits[index].Label)));
 
@@ -396,10 +398,10 @@ namespace RandomPlus
 
         protected void CycleTraitFilter(int index)
         {
-            if (index < 0 || index >= pawnFilter.Traits.Count())
+            if (index < 0 || index >= RandomSettings.PawnFilter.Traits.Count())
                 return;
 
-            TraitContainer.TraitFilterType traitFilter = pawnFilter.Traits[index].traitFilter;
+            TraitContainer.TraitFilterType traitFilter = RandomSettings.PawnFilter.Traits[index].traitFilter;
             
             switch (traitFilter)
             {
@@ -414,22 +416,39 @@ namespace RandomPlus
                     break;
             }
 
-            pawnFilter.Traits[index].traitFilter = traitFilter;
+            RandomSettings.PawnFilter.Traits[index].traitFilter = traitFilter;
         }
 
         protected String LabelForTraitFilter(int index)
         {
-            if (index < 0 || index >= pawnFilter.Traits.Count())
+            if (index < 0 || index >= RandomSettings.PawnFilter.Traits.Count())
                 return "";
 
-            switch (pawnFilter.Traits[index].traitFilter)
+            switch (RandomSettings.PawnFilter.Traits[index].traitFilter)
             {
                 case TraitContainer.TraitFilterType.Required: return " (Req)";
-                case TraitContainer.TraitFilterType.Optional: return " (Opt)";
+                case TraitContainer.TraitFilterType.Optional: return " (Pool)";
                 case TraitContainer.TraitFilterType.Excluded: return " (Excl)";
             }
 
             return "";
+        }
+
+        public void drawTraitPool()
+        {
+            Widgets.Label(traitPoolLabelRect, "Required Traits In Pool: ");
+            if (Widgets.ButtonText(traitPoolButtonRect, RandomSettings.PawnFilter.RequiredTraitsInPool.ToString(), true, true, true))
+            {
+                List<FloatMenuOption> options = new List<FloatMenuOption>();
+                foreach (var rangeOption in new int[] { 0, 1, 2, 3})
+                {
+                    var menuOption = new FloatMenuOption(rangeOption.ToString(), () => {
+                        RandomSettings.PawnFilter.RequiredTraitsInPool = rangeOption;
+                    });
+                    options.Add(menuOption);
+                }
+                Find.WindowStack.Add(new FloatMenu(options));
+            }
         }
     }
 }

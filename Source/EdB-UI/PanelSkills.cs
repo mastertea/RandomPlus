@@ -12,14 +12,10 @@ namespace RandomPlus
     public class PanelSkills : PanelBase
     {
         protected ScrollViewVertical scrollView = new ScrollViewVertical();
-        protected PawnFilter pawnFilter;
 
-        public PanelSkills(PawnFilter pawnFilter)
+        public PanelSkills()
         {
-            this.pawnFilter = pawnFilter;
-            Resize(new Rect(0, 40,
-                320, //262, 
-                362));
+            Resize(new Rect(0, 40, 320, 426));
         }
 
         public override string PanelHeader
@@ -40,6 +36,11 @@ namespace RandomPlus
         protected static Rect RectButtonIncrement;
         protected static Rect RectScrollFrame;
         protected static Rect RectScrollView;
+
+        //protected static Rect totalSkillsLabelRect;
+        //protected static Rect totalSkillsRangeRect;
+        protected static Rect totalPassionLabelRect;
+        protected static Rect totalPassionRangeRect;
 
         public override void Resize(Rect rect)
         {
@@ -85,14 +86,17 @@ namespace RandomPlus
                 arrowButtonSize.x, arrowButtonSize.y);
             RectScrollFrame = new Rect(panelPaddingLeft, top,
                 availableContentWidth, BodyRect.height - panelPaddingTop - panelPaddingBottom);
-            RectScrollView = new Rect(0, 0, RectScrollFrame.width, RectScrollFrame.height);
+            RectScrollView = new Rect(0, 0, RectScrollFrame.width, RectScrollFrame.height - 60);
+
+            //totalSkillsLabelRect = new Rect(0, 314, RectScrollFrame.width - 8, 30);
+            //totalSkillsRangeRect = totalSkillsLabelRect.OffsetBy(0, 8);
+            totalPassionLabelRect = new Rect(0, 318, RectScrollFrame.width - 8, 30);
+            totalPassionRangeRect = totalPassionLabelRect.OffsetBy(0, 8);
         }
 
         protected override void DrawPanelContent()
         {
             base.DrawPanelContent();
-
-            //CustomPawn customPawn = state.CurrentPawn;
 
             // Clear button
             Style.SetGUIColorForButton(RectButtonClearSkills);
@@ -100,10 +104,10 @@ namespace RandomPlus
             if (Widgets.ButtonInvisible(RectButtonClearSkills, false))
             {
                 SoundDefOf.Tick_Low.PlayOneShotOnCamera();
-                pawnFilter.ResetSkills();
+                RandomSettings.PawnFilter.ResetSkills();
             }
             
-            int skillCount = pawnFilter.skillFilterList.Count;
+            int skillCount = RandomSettings.PawnFilter.skillFilterList.Count;
             float rowHeight = 26;
             float height = rowHeight * skillCount;
             bool willScroll = height > RectScrollView.height;
@@ -116,7 +120,7 @@ namespace RandomPlus
 
                 Rect rect;
                 Text.Font = GameFont.Small;
-                foreach (var skillFilter in pawnFilter.skillFilterList)
+                foreach (var skillFilter in RandomSettings.PawnFilter.skillFilterList)
                 {
                     SkillDef def = skillFilter.skillDef;
                     //bool disabled = skill.TotallyDisabled;
@@ -224,10 +228,28 @@ namespace RandomPlus
             }
             finally
             {
+                GUI.color = Color.white;
+                //string labelText = string.Format("Total Skills: {0} - {1}",
+                //    RandomSettings.PawnFilter.AgeRange.min,
+                //    RandomSettings.PawnFilter.AgeRange.max);
+                //Widgets.Label(totalSkillsLabelRect, labelText);
+                //Widgets.IntRange(totalSkillsRangeRect, 20, ref RandomSettings.PawnFilter.AgeRange,
+                //    0, //PawnFilter.MinAgeDefault, 
+                //    PawnFilter.MaxAgeDefault,
+                //    "", 2);
+
+                string labelText = string.Format("Passions: {0} - {1}",
+                    RandomSettings.PawnFilter.totalPassionRange.min,
+                    RandomSettings.PawnFilter.totalPassionRange.max);
+                Widgets.Label(totalPassionLabelRect, labelText);
+                Widgets.IntRange(totalPassionRangeRect, 2042, ref RandomSettings.PawnFilter.totalPassionRange,
+                    0, //PawnFilter.MinAgeDefault, 
+                    DefDatabase<SkillDef>.AllDefs.ToArray().Length,
+                    "", 2);
+
                 GUI.EndGroup();
             }
-
-            GUI.color = Color.white;
+            
         }
 
         public static void FillableBar(Rect rect, float fillPercent, Texture2D fillTex)
@@ -309,19 +331,13 @@ namespace RandomPlus
                 switch (sk.passion)
                 {
                     case Passion.None:
-                        stringBuilder.Append("PassionNone".Translate(new object[] {
-                                    "0.3"
-                                }));
+                        stringBuilder.Append("PassionNone".Translate("0.3"));
                         break;
                     case Passion.Minor:
-                        stringBuilder.Append("PassionMinor".Translate(new object[] {
-                                    "1.0"
-                                }));
+                        stringBuilder.Append("PassionMinor".Translate("1.0"));
                         break;
                     case Passion.Major:
-                        stringBuilder.Append("PassionMajor".Translate(new object[] {
-                                    "1.5"
-                                }));
+                        stringBuilder.Append("PassionMajor".Translate("1.5"));
                         break;
                 }
             }

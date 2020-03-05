@@ -60,7 +60,6 @@ namespace RandomPlus
                     return false;
 
             List<SkillRecord> skillList = pawn.skills.skills;
-
             var skillFilterList = PawnFilter.skillFilterList;
             foreach (var skillFilter in skillFilterList)
             {
@@ -83,9 +82,19 @@ namespace RandomPlus
                 }
             }
 
-            bool needsOptionalTrait = false;
-            bool hasOptionalTrait = false;
+            // handle total passion range
+            if (RandomSettings.pawnFilter.totalPassionRange.min > PawnFilter.TotalPassionMinDefault ||
+                RandomSettings.pawnFilter.totalPassionRange.max < PawnFilter.TotalPassionMaxDefault)
+            {
+                int totalPassions = skillList.Where(skill => skill.passion > 0).Count();
+                if (totalPassions < RandomSettings.pawnFilter.totalPassionRange.min ||
+                    totalPassions > RandomSettings.pawnFilter.totalPassionRange.max)
+                {
+                    return false;
+                }
+            }
 
+            // handle required and exclude traits
             var traitFilterList = PawnFilter.Traits;
             foreach (var traitContainer in traitFilterList)
             {
@@ -97,11 +106,6 @@ namespace RandomPlus
                         if (!has)
                             return false;
                         break;
-                    case TraitContainer.TraitFilterType.Optional:
-                        needsOptionalTrait = true;
-                        if (has)
-                            hasOptionalTrait = true;
-                        break;
                     case TraitContainer.TraitFilterType.Excluded:
                         if (has)
                             return false;
@@ -109,8 +113,23 @@ namespace RandomPlus
                 }
             }
 
-            if (needsOptionalTrait && !hasOptionalTrait)
-                return false;
+            // handle trait pool (optional)
+            if (PawnFilter.RequiredTraitsInPool > 0 && 
+                PawnFilter.RequiredTraitsInPool <= PawnFilter.Traits.Count)
+            {
+                int pawnHasTraitCounter = 0;
+                var traitPool = PawnFilter.Traits.Where(t => t.traitFilter == TraitContainer.TraitFilterType.Optional);
+                foreach (var traitContainer in traitPool) {
+                    if (HasTrait(pawn, traitContainer.trait))
+                    {
+                        pawnHasTraitCounter++;
+                        if (PawnFilter.RequiredTraitsInPool == pawnHasTraitCounter)
+                            break;
+                    }
+                }
+                if (pawnHasTraitCounter < PawnFilter.RequiredTraitsInPool)
+                    return false;
+            }
 
             if (PawnFilter.NoHealthConditions &&
                 pawn.health.hediffSet.hediffs.Count > 0)
@@ -131,7 +150,6 @@ namespace RandomPlus
                     return false;
             }
 
-            //GC.Collect();
             return true;
         }
 
