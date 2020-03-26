@@ -58,9 +58,9 @@ namespace RandomPlus
 
         public List<TraitContainer> Traits = new List<TraitContainer>();
         public int RequiredTraitsInPool = 0;
-        public bool NoHealthConditions;
-        public bool NoDumbLabor;
-        public bool NoIncapabilities;
+        //public bool NoHealthConditions;
+        //public bool NoDumbLabor;
+        //public bool NoIncapabilities;
 
         public static readonly int MinAgeDefault = 0;
         public static readonly int MaxAgeDefault = 120;

@@ -122,14 +122,14 @@ namespace RandomPlus
         {
             Rect editButtonRect = new Rect(620f, 0.0f, 50f, 30f);
 
-            if (Widgets.ButtonText(editButtonRect, "Filter", true, false, true))
+            if (Widgets.ButtonText(editButtonRect, "RandomPlus.FilterButton".Translate(), true, false, true))
             {
                 var page = new Page_RandomEditor();
                 Find.WindowStack.Add(page);
             }
 
             Rect rerollLabelRect = new Rect(620f, 40f, 200f, 30f);
-            string labelText = "Rerolls: " + RandomSettings.RandomRerollCounter() + "/" + RandomSettings.RandomRerollLimit();
+            string labelText = "RandomPlus.RerollLabel".Translate() + RandomSettings.RandomRerollCounter() + "/" + RandomSettings.RandomRerollLimit();
 
             var tmpSave = GUI.color;
             if (RandomSettings.RandomRerollCounter() >= RandomSettings.RandomRerollLimit())
@@ -139,8 +139,8 @@ namespace RandomPlus
         }
     }
 
-    // For testing only
-    //[HarmonyPatch(typeof(MainMenuDrawer), "DoMainMenuControls")]
+    //For testing only
+   //[HarmonyPatch(typeof(MainMenuDrawer), "DoMainMenuControls")]
     class Patch_DoMainMenuControls
     {
         static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
@@ -174,7 +174,7 @@ namespace RandomPlus
 
         public static void AddTestButton(List<ListableOption> optList)
         {
-            optList.Add(new ListableOption((string)"Test[RandomPlus]", () => {
+            optList.Add(new ListableOption((string)"RandomPlus.Debug.QuickStartButton".Translate(), () => {
                 var page_select_scenario = new Page_SelectScenario();
                 Find.WindowStack.Add(page_select_scenario);
 

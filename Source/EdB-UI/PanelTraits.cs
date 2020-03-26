@@ -37,7 +37,7 @@ namespace RandomPlus
         {
             get
             {
-                return "Filter Traits";
+                return "RandomPlus.PanelTraits.Header".Translate();
             }
         }
 
@@ -70,7 +70,7 @@ namespace RandomPlus
                 if (RandomSettings.PawnFilter.Traits.Count() == 0)
                 {
                     GUI.color = Style.ColorText;
-                    Widgets.Label(RectScrollView.InsetBy(6, 0, 0, 0), "EdB.PC.Panel.Traits.None".Translate());
+                    Widgets.Label(RectScrollView.InsetBy(6, 0, 0, 0), "RandomPlus.PanelTraits.NoTraits".Translate());
                 }
                 GUI.color = Color.white;
 
@@ -226,7 +226,7 @@ namespace RandomPlus
                 Trait selectedTrait = null;
                 Dialog_Options<Trait> dialog = new Dialog_Options<Trait>(providerTraits.Traits)
                 {
-                    ConfirmButtonLabel = "EdB.PC.Common.Add".Translate(),
+                    ConfirmButtonLabel = "RandomPlus.PanelTraits.AddDialog.AddButton".Translate(),
                     NameFunc = (Trait t) => {
                         return t.LabelCap;
                     },
@@ -426,9 +426,9 @@ namespace RandomPlus
 
             switch (RandomSettings.PawnFilter.Traits[index].traitFilter)
             {
-                case TraitContainer.TraitFilterType.Required: return " (Req)";
-                case TraitContainer.TraitFilterType.Optional: return " (Pool)";
-                case TraitContainer.TraitFilterType.Excluded: return " (Excl)";
+                case TraitContainer.TraitFilterType.Required: return "RandomPlus.PanelTraits.FilterType.Required".Translate();
+                case TraitContainer.TraitFilterType.Optional: return "RandomPlus.PanelTraits.FilterType.Pool".Translate();
+                case TraitContainer.TraitFilterType.Excluded: return "RandomPlus.PanelTraits.FilterType.Excluded".Translate();
             }
 
             return "";
@@ -436,7 +436,7 @@ namespace RandomPlus
 
         public void drawTraitPool()
         {
-            Widgets.Label(traitPoolLabelRect, "Required Traits In Pool: ");
+            Widgets.Label(traitPoolLabelRect, "RandomPlus.PanelTraits.PoolLabel".Translate());
             if (Widgets.ButtonText(traitPoolButtonRect, RandomSettings.PawnFilter.RequiredTraitsInPool.ToString(), true, true, true))
             {
                 List<FloatMenuOption> options = new List<FloatMenuOption>();

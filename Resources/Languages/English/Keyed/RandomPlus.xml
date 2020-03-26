@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<LanguageData>
+  <RandomPlus.RandomEditor.Header>Random Editor</RandomPlus.RandomEditor.Header>
+  <RandomPlus.FilterButton>Filter</RandomPlus.FilterButton>
+  <RandomPlus.RerollLabel>Rerolls: </RandomPlus.RerollLabel>
+  
+	<RandomPlus.PanelSkills.Header>Minimum Skill Level</RandomPlus.PanelSkills.Header>
+	<RandomPlus.PanelSkills.PassionSlider>Passion: {0} - {1}</RandomPlus.PanelSkills.PassionSlider>
+	
+	<RandomPlus.PanelTraits.Header>Filter Traits</RandomPlus.PanelTraits.Header>
+  <RandomPlus.PanelTraits.NoTraits>No Traits</RandomPlus.PanelTraits.NoTraits>
+	<RandomPlus.PanelTraits.AddDialog.AddButton>Add</RandomPlus.PanelTraits.AddDialog.AddButton>
+	<RandomPlus.PanelTraits.PoolLabel>Required Traits In Pool: </RandomPlus.PanelTraits.PoolLabel>
+	<RandomPlus.PanelTraits.FilterType.Required> (Req)</RandomPlus.PanelTraits.FilterType.Required>
+	<RandomPlus.PanelTraits.FilterType.Pool> (Pool)</RandomPlus.PanelTraits.FilterType.Pool>
+	<RandomPlus.PanelTraits.FilterType.Excluded> (Excl)</RandomPlus.PanelTraits.FilterType.Excluded>
+	
+	<RandomPlus.PanelOthers.Header>Other Options</RandomPlus.PanelOthers.Header>
+	
+	<RandomPlus.PanelOthers.RerollLimitLabel>Reroll Limit:</RandomPlus.PanelOthers.RerollLimitLabel>
+	<RandomPlus.PanelOthers.GenderLabel>Gender Filter:</RandomPlus.PanelOthers.GenderLabel>
+	
+	<RandomPlus.PanelOthers.HealthOptionLabel>Health Conditions:</RandomPlus.PanelOthers.HealthOptionLabel>
+	<RandomPlus.PanelOthers.HealthOptions.AllowAll>Allow All</RandomPlus.PanelOthers.HealthOptions.AllowAll>
+	<RandomPlus.PanelOthers.HealthOptions.OnlyStartConditions>Only Start Conditions</RandomPlus.PanelOthers.HealthOptions.OnlyStartConditions>
+	<RandomPlus.PanelOthers.HealthOptions.NoPain>No Pain</RandomPlus.PanelOthers.HealthOptions.NoPain>
+	<RandomPlus.PanelOthers.HealthOptions.AllowNone>Allow None</RandomPlus.PanelOthers.HealthOptions.AllowNone>
+	
+	<RandomPlus.PanelOthers.IncapableOptionLabel>Incapable:</RandomPlus.PanelOthers.IncapableOptionLabel>
+	<RandomPlus.PanelOthers.IncapableOptions.AllowAll>Allow All</RandomPlus.PanelOthers.IncapableOptions.AllowAll>
+	<RandomPlus.PanelOthers.IncapableOptions.NoDumbLabor>No Dumb Labor</RandomPlus.PanelOthers.IncapableOptions.NoDumbLabor>
+	<RandomPlus.PanelOthers.IncapableOptions.AllowNone>Allow None</RandomPlus.PanelOthers.IncapableOptions.AllowNone>
+	
+	<RandomPlus.PanelOthers.AgeLabel>Age: {0} - {1}</RandomPlus.PanelOthers.AgeLabel>
+
+  <RandomPlus.Debug.QuickStartButton>Test[RandomPlus]</RandomPlus.Debug.QuickStartButton>
+
+</LanguageData>

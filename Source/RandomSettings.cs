@@ -7,19 +7,32 @@ namespace RandomPlus
 {
     public class RandomSettings
     {
-        public static readonly int[] RANDOM_REROLL_LIMIT_OPTIONS = new int[] { 100, 250, 500, 1000, 2500, 5000, 10000, 50000 };
-
-        private static PawnFilter pawnFilter;
-        
+        public enum RerollLimitOptions { N100 = 100, N250 = 250, N500 = 500, N1000 = 1000, N2500 = 2500, N5000 = 5000, N10000 = 10000, N50000 = 50000 }
+        public readonly static string[] RerollLimitOptionValues = new string[] { "100", "250", "500", "1000", "2500", "5000", "10000", "50000" };
         private static int randomRerollLimit = 1000;
         private static int randomRerollCounter = 0;
 
+        public enum HealthOptions { AllowAll, OnlyStartCondition, NoPain, AllowNone }
+        public readonly static string[] HealthOptionValues = new string[] { 
+            "RandomPlus.PanelOthers.HealthOptions.AllowAll", 
+            "RandomPlus.PanelOthers.HealthOptions.OnlyStartConditions",
+            "RandomPlus.PanelOthers.HealthOptions.NoPain",
+            "RandomPlus.PanelOthers.HealthOptions.AllowNone"
+        };
+        public static HealthOptions FilterHealthCondition = HealthOptions.AllowAll;
+
+        public enum IncapableOptions { AllowAll, NoDumbLabor, AllowNone }
+        public readonly static string[] IncapableOptionValues = new string[] {
+            "RandomPlus.PanelOthers.IncapableOptions.AllowAll",
+            "RandomPlus.PanelOthers.IncapableOptions.NoDumbLabor",
+            "RandomPlus.PanelOthers.IncapableOptions.AllowNone"
+        };
+        public static IncapableOptions FilterIncapable = IncapableOptions.AllowAll;
+
         public static PawnFilter PawnFilter
         {
-            get
-            {
-                return pawnFilter;
-            }
+            get;
+            set;
         }
 
         public static int RandomRerollCounter()
@@ -39,7 +52,7 @@ namespace RandomPlus
 
         public static void Init()
         {
-            pawnFilter = new PawnFilter();
+            PawnFilter = new PawnFilter();
         }
 
         public static void ResetRerollCounter()
@@ -83,12 +96,12 @@ namespace RandomPlus
             }
 
             // handle total passion range
-            if (RandomSettings.pawnFilter.totalPassionRange.min > PawnFilter.TotalPassionMinDefault ||
-                RandomSettings.pawnFilter.totalPassionRange.max < PawnFilter.TotalPassionMaxDefault)
+            if (RandomSettings.PawnFilter.totalPassionRange.min > PawnFilter.TotalPassionMinDefault ||
+                RandomSettings.PawnFilter.totalPassionRange.max < PawnFilter.TotalPassionMaxDefault)
             {
                 int totalPassions = skillList.Where(skill => skill.passion > 0).Count();
-                if (totalPassions < RandomSettings.pawnFilter.totalPassionRange.min ||
-                    totalPassions > RandomSettings.pawnFilter.totalPassionRange.max)
+                if (totalPassions < RandomSettings.PawnFilter.totalPassionRange.min ||
+                    totalPassions > RandomSettings.PawnFilter.totalPassionRange.max)
                 {
                     return false;
                 }
@@ -131,16 +144,37 @@ namespace RandomPlus
                     return false;
             }
 
-            if (PawnFilter.NoHealthConditions &&
-                pawn.health.hediffSet.hediffs.Count > 0)
-                return false;
+            switch (FilterHealthCondition) {
+                case HealthOptions.AllowAll:
+                    break;
+                case HealthOptions.OnlyStartCondition:
+                    var foundNotStartCondition = pawn.health.hediffSet.hediffs.FirstOrDefault((hediff) => hediff.def.defName != "CryptosleepSickness" && hediff.def.defName != "Malnutrition");
+                    if (foundNotStartCondition != null)
+                        return false;
+                    break;
+                case HealthOptions.NoPain:
+                    var foundPain = pawn.health.hediffSet.hediffs.FirstOrDefault((hediff) => hediff.PainOffset > 0f);
+                    if (foundPain != null)
+                        return false;
+                    break;
+                case HealthOptions.AllowNone:
+                    if (pawn.health.hediffSet.hediffs.Count > 0)
+                        return false;
+                    break;
+            }
 
-            if (PawnFilter.NoIncapabilities && pawn.story.DisabledWorkTagsBackstoryAndTraits != WorkTags.None)
-                return false;
-
-            if (PawnFilter.NoDumbLabor &&
-                (pawn.story.DisabledWorkTagsBackstoryAndTraits & WorkTags.ManualDumb) == WorkTags.ManualDumb)
-                return false;
+            switch (FilterIncapable) {
+                case IncapableOptions.AllowAll:
+                    break;
+                case IncapableOptions.NoDumbLabor:
+                    if ((pawn.story.DisabledWorkTagsBackstoryAndTraits & WorkTags.ManualDumb) == WorkTags.ManualDumb)
+                        return false;
+                    break;
+                case IncapableOptions.AllowNone:
+                    if (pawn.story.DisabledWorkTagsBackstoryAndTraits != WorkTags.None)
+                        return false;
+                    break;
+            }
 
             if (PawnFilter.AgeRange.min != PawnFilter.MinAgeDefault || 
                 PawnFilter.AgeRange.max != PawnFilter.MaxAgeDefault)

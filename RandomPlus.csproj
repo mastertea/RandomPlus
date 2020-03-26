@@ -63,7 +63,7 @@
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Source\PanelOtherOptions.cs" />
+    <Compile Include="Source\PanelOthers.cs" />
     <Compile Include="Source\EdB-UI\Dialog_Options.cs" />
     <Compile Include="Source\EdB-UI\ExtensionsRect.cs" />
     <Compile Include="Source\EdB-UI\Field.cs" />

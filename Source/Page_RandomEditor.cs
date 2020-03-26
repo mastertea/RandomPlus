@@ -1,5 +1,6 @@
 ﻿using RimWorld;
 using UnityEngine;
+using Verse;
 
 namespace RandomPlus
 {
@@ -7,7 +8,7 @@ namespace RandomPlus
     {
         PanelSkills panelSkills;
         PanelTraits panelTraits;
-        PanelOtherOptions panelOthers;
+        PanelOthers panelOthers;
 
         public Page_RandomEditor()
         {
@@ -30,7 +31,7 @@ namespace RandomPlus
         {
             get
             {
-                return "Random Editor";
+                return "RandomPlus.RandomEditor.Header".Translate();
             }
         }
 
@@ -39,7 +40,7 @@ namespace RandomPlus
             base.PreOpen();
             panelSkills = new PanelSkills();
             panelTraits = new PanelTraits();
-            panelOthers = new PanelOtherOptions();
+            panelOthers = new PanelOthers();
         }
 
         public override void DoWindowContents(Rect inRect)

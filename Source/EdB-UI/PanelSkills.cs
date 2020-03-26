@@ -1,6 +1,4 @@
 ﻿using RimWorld;
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
@@ -22,7 +20,7 @@ namespace RandomPlus
         {
             get
             {
-                return "Minimum Skill Level";
+                return "RandomPlus.PanelSkills.Header".Translate();
             }
         }
 
@@ -238,7 +236,7 @@ namespace RandomPlus
                 //    PawnFilter.MaxAgeDefault,
                 //    "", 2);
 
-                string labelText = string.Format("Passions: {0} - {1}",
+                string labelText = string.Format("RandomPlus.PanelSkills.PassionSlider".Translate(),
                     RandomSettings.PawnFilter.totalPassionRange.min,
                     RandomSettings.PawnFilter.totalPassionRange.max);
                 Widgets.Label(totalPassionLabelRect, labelText);
@@ -311,41 +309,41 @@ namespace RandomPlus
         }
 
         // EdB: Copy of private static SkillUI.GetSkillDescription().
-        private static string GetSkillDescription(SkillRecord sk)
-        {
-            StringBuilder stringBuilder = new StringBuilder();
-            if (sk.TotallyDisabled)
-            {
-                stringBuilder.Append("DisabledLower".Translate().CapitalizeFirst());
-            }
-            else
-            {
-                stringBuilder.AppendLine(string.Concat(new object[] {
-                            "Level".Translate(),
-                            " ",
-                            sk.Level,
-                            ": ",
-                            sk.LevelDescriptor
-                        }));
-                stringBuilder.Append("Passion".Translate() + ": ");
-                switch (sk.passion)
-                {
-                    case Passion.None:
-                        stringBuilder.Append("PassionNone".Translate("0.3"));
-                        break;
-                    case Passion.Minor:
-                        stringBuilder.Append("PassionMinor".Translate("1.0"));
-                        break;
-                    case Passion.Major:
-                        stringBuilder.Append("PassionMajor".Translate("1.5"));
-                        break;
-                }
-            }
-            stringBuilder.AppendLine();
-            stringBuilder.AppendLine();
-            stringBuilder.Append(sk.def.description);
-            return stringBuilder.ToString();
-        }
+        //private static string GetSkillDescription(SkillRecord sk)
+        //{
+        //    StringBuilder stringBuilder = new StringBuilder();
+        //    if (sk.TotallyDisabled)
+        //    {
+        //        stringBuilder.Append("DisabledLower".Translate().CapitalizeFirst());
+        //    }
+        //    else
+        //    {
+        //        stringBuilder.AppendLine(string.Concat(new object[] {
+        //                    "Level".Translate(),
+        //                    " ",
+        //                    sk.Level,
+        //                    ": ",
+        //                    sk.LevelDescriptor
+        //                }));
+        //        stringBuilder.Append("Passion".Translate() + ": ");
+        //        switch (sk.passion)
+        //        {
+        //            case Passion.None:
+        //                stringBuilder.Append("PassionNone".Translate("0.3"));
+        //                break;
+        //            case Passion.Minor:
+        //                stringBuilder.Append("PassionMinor".Translate("1.0"));
+        //                break;
+        //            case Passion.Major:
+        //                stringBuilder.Append("PassionMajor".Translate("1.5"));
+        //                break;
+        //        }
+        //    }
+        //    stringBuilder.AppendLine();
+        //    stringBuilder.AppendLine();
+        //    stringBuilder.Append(sk.def.description);
+        //    return stringBuilder.ToString();
+        //}
 
         protected void IncreasePassion(SkillContainer filter)
         {
