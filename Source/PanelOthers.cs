@@ -103,7 +103,7 @@ namespace RandomPlus
         public void drawGender(Rect rect)
         {
             var displayedNameArray = Enum.GetValues(typeof(Gender)).Cast<Gender>().ToList().Select((gender) => GenderUtility.GetLabel(gender)).ToArray();
-            drawButton(rect, GenderUtility.GetLabel(RandomSettings.PawnFilter.gender), typeof(Gender), displayedNameArray, genderCallback);
+            drawButton(rect, GenderUtility.GetLabel(RandomSettings.PawnFilter.gender), typeof(Gender), displayedNameArray, genderCallback, false);
         }
 
         private readonly static Action<Enum> healthCallback = (Enum val) => RandomSettings.FilterHealthCondition = (RandomSettings.HealthOptions)val;
@@ -118,16 +118,18 @@ namespace RandomPlus
             drawButton(rect, RandomSettings.IncapableOptionValues[(int)RandomSettings.FilterIncapable], typeof(RandomSettings.IncapableOptions), RandomSettings.IncapableOptionValues, incapableCallback);
         }
 
-        public void drawButton(Rect rect, string label, Type enumOptionType, string[] displayedNameArray, Action<Enum> callback)
+        public void drawButton(Rect rect, string label, Type enumOptionType, string[] displayedNameArray, Action<Enum> callback, bool translate = true)
         {
-            if (Widgets.ButtonText(rect, label.Translate().CapitalizeFirst(), true, true, true))
+            string displayLabel = (translate) ? label.Translate().CapitalizeFirst().ToString() : label.CapitalizeFirst();
+            if (Widgets.ButtonText(rect, displayLabel, true, true, true))
             {
                 List<FloatMenuOption> options = new List<FloatMenuOption>();
                 var enumOptions = Enum.GetValues(enumOptionType).Cast<Enum>().ToArray();
                 for (int i=0; i < enumOptions.Length; i++)
                 {
                     var option = enumOptions[i];
-                    var menuOption = new FloatMenuOption(displayedNameArray[i].Translate().CapitalizeFirst(), () => {
+                    var displayedName = (translate) ? displayedNameArray[i].Translate().CapitalizeFirst().ToString() : displayedNameArray[i].CapitalizeFirst();
+                    var menuOption = new FloatMenuOption(displayedName, () => {
                         callback?.Invoke(option);
                     });
                     options.Add(menuOption);
