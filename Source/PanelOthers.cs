@@ -93,10 +93,10 @@ namespace RandomPlus
             GUI.color = Color.white;
         }
 
-        private readonly static Action<Enum> rerollCallback = (Enum val) => RandomSettings.SetRandomRerollLimit((int)(RandomSettings.RerollLimitOptions)val);
+        private readonly static Action<Enum> rerollCallback = (Enum val) => RandomSettings.SetRandomRerollLimit((int)(PawnFilter.RerollLimitOptions)val);
         public void drawRerollLimit(Rect rect)
         {
-            drawButton(rect, RandomSettings.RandomRerollLimit().ToString(), typeof(RandomSettings.RerollLimitOptions), RandomSettings.RerollLimitOptionValues, rerollCallback);
+            drawButton(rect, RandomSettings.RandomRerollLimit().ToString(), typeof(PawnFilter.RerollLimitOptions), PawnFilter.RerollLimitOptionValues, rerollCallback);
         }
 
         private readonly static Action<Enum> genderCallback = (Enum val) => RandomSettings.SetGenderFilter((Gender)val);
@@ -106,16 +106,16 @@ namespace RandomPlus
             drawButton(rect, GenderUtility.GetLabel(RandomSettings.PawnFilter.gender), typeof(Gender), displayedNameArray, genderCallback, false);
         }
 
-        private readonly static Action<Enum> healthCallback = (Enum val) => RandomSettings.FilterHealthCondition = (RandomSettings.HealthOptions)val;
+        private readonly static Action<Enum> healthCallback = (Enum val) => RandomSettings.PawnFilter.FilterHealthCondition = (PawnFilter.HealthOptions)val;
         public void drawHealthCondition(Rect rect)
         {
-            drawButton(rect, RandomSettings.HealthOptionValues[(int)RandomSettings.FilterHealthCondition], typeof(RandomSettings.HealthOptions), RandomSettings.HealthOptionValues, healthCallback);
+            drawButton(rect, PawnFilter.HealthOptionValues[(int)RandomSettings.PawnFilter.FilterHealthCondition], typeof(PawnFilter.HealthOptions), PawnFilter.HealthOptionValues, healthCallback);
         }
 
-        private readonly static Action<Enum> incapableCallback = (Enum val) => RandomSettings.FilterIncapable = (RandomSettings.IncapableOptions)val;
+        private readonly static Action<Enum> incapableCallback = (Enum val) => RandomSettings.PawnFilter.FilterIncapable = (PawnFilter.IncapableOptions)val;
         public void drawIncapable(Rect rect)
         {
-            drawButton(rect, RandomSettings.IncapableOptionValues[(int)RandomSettings.FilterIncapable], typeof(RandomSettings.IncapableOptions), RandomSettings.IncapableOptionValues, incapableCallback);
+            drawButton(rect, PawnFilter.IncapableOptionValues[(int)RandomSettings.PawnFilter.FilterIncapable], typeof(PawnFilter.IncapableOptions), PawnFilter.IncapableOptionValues, incapableCallback);
         }
 
         public void drawButton(Rect rect, string label, Type enumOptionType, string[] displayedNameArray, Action<Enum> callback, bool translate = true)

@@ -1,6 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <LanguageData>
   <RandomPlus.RandomEditor.Header>Random Editor</RandomPlus.RandomEditor.Header>
+  <RandomPlus.RandomEditor.SaveLoadButton>Save/Load</RandomPlus.RandomEditor.SaveLoadButton>
+  
+  <RandomPlus.SaveLoadDialog.SaveButton>Save</RandomPlus.SaveLoadDialog.SaveButton>
+  <RandomPlus.SaveLoadDialog.OverwriteButton>Overwrite</RandomPlus.SaveLoadDialog.OverwriteButton>
+  <RandomPlus.SaveLoadDialog.LoadButton>Load</RandomPlus.SaveLoadDialog.LoadButton>
+  <RandomPlus.SaveLoadDialog.DeleteButton>Delete</RandomPlus.SaveLoadDialog.DeleteButton>
+  
   <RandomPlus.FilterButton>Filter</RandomPlus.FilterButton>
   <RandomPlus.RerollLabel>Rerolls: </RandomPlus.RerollLabel>
   

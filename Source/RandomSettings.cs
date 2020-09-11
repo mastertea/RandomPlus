@@ -1,5 +1,7 @@
 ﻿using Verse;
 using RimWorld;
+using System;
+using System.IO;
 using System.Linq;
 using System.Collections.Generic;
 
@@ -7,32 +9,15 @@ namespace RandomPlus
 {
     public class RandomSettings
     {
-        public enum RerollLimitOptions { N100 = 100, N250 = 250, N500 = 500, N1000 = 1000, N2500 = 2500, N5000 = 5000, N10000 = 10000, N50000 = 50000 }
-        public readonly static string[] RerollLimitOptionValues = new string[] { "100", "250", "500", "1000", "2500", "5000", "10000", "50000" };
-        private static int randomRerollLimit = 1000;
-        private static int randomRerollCounter = 0;
+        public static int randomRerollCounter = 0;
 
-        public enum HealthOptions { AllowAll, OnlyStartCondition, NoPain, AllowNone }
-        public readonly static string[] HealthOptionValues = new string[] { 
-            "RandomPlus.PanelOthers.HealthOptions.AllowAll", 
-            "RandomPlus.PanelOthers.HealthOptions.OnlyStartConditions",
-            "RandomPlus.PanelOthers.HealthOptions.NoPain",
-            "RandomPlus.PanelOthers.HealthOptions.AllowNone"
-        };
-        public static HealthOptions FilterHealthCondition = HealthOptions.AllowAll;
+        public static List<PawnFilter> pawnFilterList = new List<PawnFilter>();
 
-        public enum IncapableOptions { AllowAll, NoDumbLabor, AllowNone }
-        public readonly static string[] IncapableOptionValues = new string[] {
-            "RandomPlus.PanelOthers.IncapableOptions.AllowAll",
-            "RandomPlus.PanelOthers.IncapableOptions.NoDumbLabor",
-            "RandomPlus.PanelOthers.IncapableOptions.AllowNone"
-        };
-        public static IncapableOptions FilterIncapable = IncapableOptions.AllowAll;
-
+        private static PawnFilter pawnFilter;
         public static PawnFilter PawnFilter
         {
-            get;
-            set;
+            get { return pawnFilter; }
+            set { pawnFilter = value; }
         }
 
         public static int RandomRerollCounter()
@@ -42,12 +27,12 @@ namespace RandomPlus
 
         public static void SetRandomRerollLimit(int limit)
         {
-            randomRerollLimit = limit;
+            pawnFilter.randomRerollLimit = limit;
         }
 
         public static int RandomRerollLimit()
         {
-            return randomRerollLimit;
+            return pawnFilter.randomRerollLimit;
         }
 
         public static void Init()
@@ -144,33 +129,33 @@ namespace RandomPlus
                     return false;
             }
 
-            switch (FilterHealthCondition) {
-                case HealthOptions.AllowAll:
+            switch (PawnFilter.FilterHealthCondition) {
+                case PawnFilter.HealthOptions.AllowAll:
                     break;
-                case HealthOptions.OnlyStartCondition:
+                case PawnFilter.HealthOptions.OnlyStartCondition:
                     var foundNotStartCondition = pawn.health.hediffSet.hediffs.FirstOrDefault((hediff) => hediff.def.defName != "CryptosleepSickness" && hediff.def.defName != "Malnutrition");
                     if (foundNotStartCondition != null)
                         return false;
                     break;
-                case HealthOptions.NoPain:
+                case PawnFilter.HealthOptions.NoPain:
                     var foundPain = pawn.health.hediffSet.hediffs.FirstOrDefault((hediff) => hediff.PainOffset > 0f);
                     if (foundPain != null)
                         return false;
                     break;
-                case HealthOptions.AllowNone:
+                case PawnFilter.HealthOptions.AllowNone:
                     if (pawn.health.hediffSet.hediffs.Count > 0)
                         return false;
                     break;
             }
 
-            switch (FilterIncapable) {
-                case IncapableOptions.AllowAll:
+            switch (PawnFilter.FilterIncapable) {
+                case PawnFilter.IncapableOptions.AllowAll:
                     break;
-                case IncapableOptions.NoDumbLabor:
+                case PawnFilter.IncapableOptions.NoDumbLabor:
                     if ((pawn.story.DisabledWorkTagsBackstoryAndTraits & WorkTags.ManualDumb) == WorkTags.ManualDumb)
                         return false;
                     break;
-                case IncapableOptions.AllowNone:
+                case PawnFilter.IncapableOptions.AllowNone:
                     if (pawn.story.DisabledWorkTagsBackstoryAndTraits != WorkTags.None)
                         return false;
                     break;
@@ -213,5 +198,6 @@ namespace RandomPlus
         {
             PawnFilter.gender = gender;
         }
+
     }
 }

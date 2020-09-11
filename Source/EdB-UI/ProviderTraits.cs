@@ -15,16 +15,9 @@ namespace RandomPlus {
         public ProviderTraits() {
             // Get all trait options.  If a traits has multiple degrees, create a separate trait for each degree.
             foreach (TraitDef def in DefDatabase<TraitDef>.AllDefs) {
-                List<TraitDegreeData> degreeData = def.degreeDatas;
-                int count = degreeData.Count;
-                if (count > 0) {
-                    for (int i = 0; i < count; i++) {
-                        Trait trait = new Trait(def, degreeData[i].degree, true);
-                        traits.Add(trait);
-                    }
-                }
-                else {
-                    traits.Add(new Trait(def, 0, true));
+                foreach (var trait in def.ToTraits())
+                {
+                    traits.Add(trait);
                 }
             }
 
