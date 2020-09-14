@@ -10,8 +10,10 @@ namespace RandomPlus
         PanelTraits panelTraits;
         PanelOthers panelOthers;
 
-        private static readonly int ButtonWidthSaveLoad = 100;
-        private static readonly int ButtonHeightSaveLoad = 20;
+        private static readonly int ButtonWidth = 100;
+        private static readonly int ButtonHeight = 20;
+
+        Rect RectButtonResetAll;
         Rect RectButtonSaveLoad;
 
         public Page_RandomEditor()
@@ -46,13 +48,14 @@ namespace RandomPlus
             panelTraits = new PanelTraits();
             panelOthers = new PanelOthers();
 
-            RectButtonSaveLoad = new Rect(InitialSize.x - (ButtonWidthSaveLoad + 50), InitialSize.y - (ButtonHeightSaveLoad + 520), ButtonWidthSaveLoad, ButtonHeightSaveLoad);
+            RectButtonResetAll = new Rect(InitialSize.x - (ButtonWidth + 50), InitialSize.y - (ButtonHeight + 520), ButtonWidth, ButtonHeight);
+            RectButtonSaveLoad = new Rect(InitialSize.x - (ButtonWidth * 2 + 60), InitialSize.y - (ButtonHeight + 520), ButtonWidth, ButtonHeight);
         }
 
         public override void DoWindowContents(Rect inRect)
         {
             this.DrawPageTitle(inRect);
-            Rect mainRect = base.GetMainRect(inRect, 30f, false);
+            //Rect mainRect = base.GetMainRect(inRect, 30f, false);
 
             panelSkills.Draw();
             panelTraits.Draw();
@@ -61,6 +64,11 @@ namespace RandomPlus
             if (Widgets.ButtonText(RectButtonSaveLoad, "RandomPlus.RandomEditor.SaveLoadButton".Translate(), true, false, true))
             {
                 Find.WindowStack.Add(new SaveLoadDialog());
+            }
+
+            if (Widgets.ButtonText(RectButtonResetAll, "RandomPlus.RandomEditor.ResetAllButton".Translate(), true, true, true))
+            {
+                RandomSettings.PawnFilter.ResetAll();
             }
         }
     }

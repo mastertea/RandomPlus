@@ -140,7 +140,7 @@ namespace RandomPlus
     }
 
     //For testing only
-   //[HarmonyPatch(typeof(MainMenuDrawer), "DoMainMenuControls")]
+   [HarmonyPatch(typeof(MainMenuDrawer), "DoMainMenuControls")]
     class Patch_DoMainMenuControls
     {
         static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)

@@ -102,7 +102,7 @@ namespace RandomPlus
 
                     if (traitContainer != null)
                     {
-                        field.Label = traitContainer.trait.LabelCap + LabelForTraitFilter(index);
+                        field.Label = $"{traitContainer.trait.LabelCap}{LabelForTraitFilter(index)} {RandomSettings.GetTraitRollChanceText(traitContainer.trait.def)}";
                     }
                     else
                     {
@@ -228,7 +228,7 @@ namespace RandomPlus
                 {
                     ConfirmButtonLabel = "RandomPlus.PanelTraits.AddDialog.AddButton".Translate(),
                     NameFunc = (Trait t) => {
-                        return t.LabelCap;
+                        return $"{t.LabelCap} {RandomSettings.GetTraitRollChanceText(t.def)}";
                     },
                     DescriptionFunc = (Trait t) => {
                         return null;
@@ -450,5 +450,7 @@ namespace RandomPlus
                 Find.WindowStack.Add(new FloatMenu(options));
             }
         }
+
+        
     }
 }

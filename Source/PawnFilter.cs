@@ -43,11 +43,11 @@ namespace RandomPlus
 
         public IntRange totalPassionRange;
         public IntRange AgeRange;
+
         public Gender gender;
-        
-        public int randomRerollLimit = (int)DefaultRerollLimit;
-        public HealthOptions FilterHealthCondition = HealthOptions.AllowAll;
-        public IncapableOptions FilterIncapable = IncapableOptions.AllowAll;
+        public int randomRerollLimit;
+        public HealthOptions FilterHealthCondition;
+        public IncapableOptions FilterIncapable;
 
         public PawnFilter()
         {
@@ -61,6 +61,7 @@ namespace RandomPlus
             {
                 skillFilterList.Add(new SkillContainer(skilldef));
             }
+            totalPassionRange = new IntRange(TotalPassionMinDefault, TotalPassionMaxDefault);
         }
 
         public void ResetTraits()
@@ -68,13 +69,21 @@ namespace RandomPlus
             Traits.Clear();
         }
 
-        public void ResetAll()
+        public void ResetOther()
         {
             gender = Gender.None;
+            randomRerollLimit = (int)DefaultRerollLimit;
+            FilterHealthCondition = HealthOptions.AllowAll;
+            FilterIncapable = IncapableOptions.AllowAll;
+
+            AgeRange = new IntRange(MinAgeDefault, MaxAgeDefault);
+        }
+
+        public void ResetAll()
+        {
             ResetSkills();
             ResetTraits();
-            totalPassionRange = new IntRange(TotalPassionMinDefault, TotalPassionMaxDefault);
-            AgeRange = new IntRange(MinAgeDefault, MaxAgeDefault);
+            ResetOther();
         }
 
         public void ExposeData()

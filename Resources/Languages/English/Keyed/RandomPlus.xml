@@ -1,6 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <LanguageData>
   <RandomPlus.RandomEditor.Header>Random Editor</RandomPlus.RandomEditor.Header>
+  <RandomPlus.RandomEditor.ResetAllButton>Reset All</RandomPlus.RandomEditor.ResetAllButton>
   <RandomPlus.RandomEditor.SaveLoadButton>Save/Load</RandomPlus.RandomEditor.SaveLoadButton>
   
   <RandomPlus.SaveLoadDialog.SaveButton>Save</RandomPlus.SaveLoadDialog.SaveButton>

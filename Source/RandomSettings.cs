@@ -199,5 +199,44 @@ namespace RandomPlus
             PawnFilter.gender = gender;
         }
 
+        private static float _cacheTraitCommonalityMale;
+        private static float _cacheTraitCommonalityFemale;
+
+        private static float GetTotalTraitCommonality(Gender gender)
+        {
+            if (gender == Gender.Male && _cacheTraitCommonalityMale > 0)
+                return _cacheTraitCommonalityMale;
+            if (gender == Gender.Female && _cacheTraitCommonalityFemale > 0)
+                return _cacheTraitCommonalityFemale;
+
+            float total = 0;
+            foreach (var trait in DefDatabase<TraitDef>.AllDefsListForReading)
+            {
+                total += trait.GetGenderSpecificCommonality(gender);
+            }
+
+            if (gender == Gender.Male)
+                _cacheTraitCommonalityMale = total;
+            if (gender == Gender.Female)
+                _cacheTraitCommonalityFemale = total;
+
+            return total;
+        }
+
+        public static float GetTraitRollChance(TraitDef traitDef, Gender gender = Gender.Male)
+        {
+            float total = GetTotalTraitCommonality(gender);
+            return traitDef.GetGenderSpecificCommonality(gender) * 100 / total;
+        }
+
+        public static string GetTraitRollChanceText(TraitDef traitDef)
+        {
+            string pecentMale = GetTraitRollChance(traitDef, Gender.Male).ToString("0.0");
+            string pecentFemale = GetTraitRollChance(traitDef, Gender.Female).ToString("0.0");
+
+            if (traitDef.GetGenderSpecificCommonality(Gender.Male) == traitDef.GetGenderSpecificCommonality(Gender.Female))
+                return $"({pecentMale}%)";
+            return $"(♂:{pecentMale}%,♀:{pecentFemale}%)";
+        }
     }
 }
