@@ -1,13 +1,31 @@
 ﻿using Verse;
 using RimWorld;
+using System;
+using System.Runtime.Remoting.Messaging;
 
 namespace RandomPlus
 {
     public class SkillContainer : IExposable
     {
-        public SkillDef skillDef;
+        private SkillDef skillDef;
+        public SkillDef SkillDef {
+            get => skillDef;
+            set {
+                skillDef = value;
+                OnChange?.Invoke();
+            }
+        }
 
-        public Passion passion;
+
+        private Passion passion;
+        public Passion Passion
+        {
+            get => passion;
+            set {
+                passion = value;
+                OnChange?.Invoke();
+            }
+        }
 
         private int minValue;
         public int MinValue
@@ -18,8 +36,11 @@ namespace RandomPlus
                 if (value > 20) minValue = 20;
                 else if (value < 0) minValue = 0;
                 else minValue = value;
+                OnChange?.Invoke();
             }
         }
+
+        private Action OnChange;
 
         public SkillContainer()
         {
@@ -27,11 +48,12 @@ namespace RandomPlus
             MinValue = 0;
         }
 
-        public SkillContainer(SkillDef skillDef)
+        public SkillContainer(SkillDef skillDef, Action OnChange)
         {
             this.skillDef = skillDef;
             passion = Passion.None;
             MinValue = 0;
+            this.OnChange = OnChange;
         }
 
         public void ExposeData()

@@ -25,19 +25,19 @@ namespace RandomPlus
             return randomRerollCounter;
         }
 
-        public static void SetRandomRerollLimit(int limit)
-        {
-            pawnFilter.randomRerollLimit = limit;
-        }
+        //public static void SetRandomRerollLimit(int limit)
+        //{
+        //    pawnFilter.RerollLimit = limit;
+        //}
 
-        public static int RandomRerollLimit()
-        {
-            return pawnFilter.randomRerollLimit;
-        }
+        //public static int RandomRerollLimit()
+        //{
+        //    return pawnFilter.randomRerollLimit;
+        //}
 
         public static void Init()
         {
-            PawnFilter = new PawnFilter();
+            pawnFilter = new PawnFilter();
         }
 
         public static void ResetRerollCounter()
@@ -47,27 +47,26 @@ namespace RandomPlus
 
         public static bool CheckPawnIsSatisfied(Pawn pawn)
         {
-            if (RandomRerollCounter() >= RandomRerollLimit())
+            if (RandomRerollCounter() >= PawnFilter.RerollLimit)
             {
                 return true;
             }
             randomRerollCounter++;
 
-            if (PawnFilter.gender != Gender.None && pawn.gender != Gender.None)
-                if (PawnFilter.gender != pawn.gender)
+            if (pawnFilter.Gender != Gender.None && pawn.gender != Gender.None)
+                if (pawnFilter.Gender != pawn.gender)
                     return false;
 
             List<SkillRecord> skillList = pawn.skills.skills;
-            var skillFilterList = PawnFilter.skillFilterList;
-            foreach (var skillFilter in skillFilterList)
+            foreach (var skillFilter in pawnFilter.Skills)
             {
-                if (skillFilter.passion != Passion.None || 
+                if (skillFilter.Passion != Passion.None || 
                     skillFilter.MinValue > 0)
                 {
-                    var skillRecord = skillList.FirstOrDefault(i => i.def == skillFilter.skillDef);
+                    var skillRecord = skillList.FirstOrDefault(i => i.def == skillFilter.SkillDef);
                     if (skillRecord != null)
                     {
-                        if (skillRecord.passion < skillFilter.passion || 
+                        if (skillRecord.passion < skillFilter.Passion || 
                             skillRecord.Level < skillFilter.MinValue)
                         {
                             return false;
@@ -81,19 +80,19 @@ namespace RandomPlus
             }
 
             // handle total passion range
-            if (RandomSettings.PawnFilter.totalPassionRange.min > PawnFilter.TotalPassionMinDefault ||
-                RandomSettings.PawnFilter.totalPassionRange.max < PawnFilter.TotalPassionMaxDefault)
+            if (pawnFilter.passionRange.min > PawnFilter.PassionMinDefault ||
+                pawnFilter.passionRange.max < PawnFilter.PassionMaxDefault)
             {
                 int totalPassions = skillList.Where(skill => skill.passion > 0).Count();
-                if (totalPassions < RandomSettings.PawnFilter.totalPassionRange.min ||
-                    totalPassions > RandomSettings.PawnFilter.totalPassionRange.max)
+                if (totalPassions < pawnFilter.passionRange.min ||
+                    totalPassions > pawnFilter.passionRange.max)
                 {
                     return false;
                 }
             }
 
             // handle required and exclude traits
-            var traitFilterList = PawnFilter.Traits;
+            var traitFilterList = pawnFilter.Traits;
             foreach (var traitContainer in traitFilterList)
             {
                 bool has = HasTrait(pawn, traitContainer.trait);
@@ -112,24 +111,24 @@ namespace RandomPlus
             }
 
             // handle trait pool (optional)
-            if (PawnFilter.RequiredTraitsInPool > 0 && 
-                PawnFilter.RequiredTraitsInPool <= PawnFilter.Traits.Count)
+            if (pawnFilter.RequiredTraitsInPool > 0 && 
+                pawnFilter.RequiredTraitsInPool <= pawnFilter.Traits.Count())
             {
                 int pawnHasTraitCounter = 0;
-                var traitPool = PawnFilter.Traits.Where(t => t.traitFilter == TraitContainer.TraitFilterType.Optional);
+                var traitPool = pawnFilter.Traits.Where(t => t.traitFilter == TraitContainer.TraitFilterType.Optional);
                 foreach (var traitContainer in traitPool) {
                     if (HasTrait(pawn, traitContainer.trait))
                     {
                         pawnHasTraitCounter++;
-                        if (PawnFilter.RequiredTraitsInPool == pawnHasTraitCounter)
+                        if (pawnFilter.RequiredTraitsInPool == pawnHasTraitCounter)
                             break;
                     }
                 }
-                if (pawnHasTraitCounter < PawnFilter.RequiredTraitsInPool)
+                if (pawnHasTraitCounter < pawnFilter.RequiredTraitsInPool)
                     return false;
             }
 
-            switch (PawnFilter.FilterHealthCondition) {
+            switch (pawnFilter.FilterHealthCondition) {
                 case PawnFilter.HealthOptions.AllowAll:
                     break;
                 case PawnFilter.HealthOptions.OnlyStartCondition:
@@ -148,7 +147,7 @@ namespace RandomPlus
                     break;
             }
 
-            switch (PawnFilter.FilterIncapable) {
+            switch (pawnFilter.FilterIncapable) {
                 case PawnFilter.IncapableOptions.AllowAll:
                     break;
                 case PawnFilter.IncapableOptions.NoDumbLabor:
@@ -161,11 +160,11 @@ namespace RandomPlus
                     break;
             }
 
-            if (PawnFilter.AgeRange.min != PawnFilter.MinAgeDefault || 
-                PawnFilter.AgeRange.max != PawnFilter.MaxAgeDefault)
+            if (pawnFilter.ageRange.min != PawnFilter.MinAgeDefault || 
+                pawnFilter.ageRange.max != PawnFilter.MaxAgeDefault)
             {
-                if (PawnFilter.AgeRange.min > pawn.ageTracker.AgeBiologicalYears || 
-                    PawnFilter.AgeRange.max < pawn.ageTracker.AgeBiologicalYears)
+                if (pawnFilter.ageRange.min > pawn.ageTracker.AgeBiologicalYears || 
+                    pawnFilter.ageRange.max < pawn.ageTracker.AgeBiologicalYears)
                     return false;
             }
 
@@ -196,7 +195,7 @@ namespace RandomPlus
 
         public static void SetGenderFilter(Gender gender)
         {
-            PawnFilter.gender = gender;
+            pawnFilter.Gender = gender;
         }
 
         private static float _cacheTraitCommonalityMale;

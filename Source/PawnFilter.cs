@@ -7,8 +7,8 @@ namespace RandomPlus
 {
     public class PawnFilter : IExposable
     {
-        public static readonly int TotalPassionMinDefault = 0;
-        public static readonly int TotalPassionMaxDefault = DefDatabase<SkillDef>.AllDefs.ToArray().Length;
+        public static readonly int PassionMinDefault = 0;
+        public static readonly int PassionMaxDefault = DefDatabase<SkillDef>.AllDefs.ToArray().Length;
 
         public static readonly int MinAgeDefault = 0;
         public static readonly int MaxAgeDefault = 120;
@@ -36,18 +36,137 @@ namespace RandomPlus
 
         public string name;
 
-        public List<SkillContainer> skillFilterList = new List<SkillContainer>();
-        public List<TraitContainer> Traits = new List<TraitContainer>();
+        private List<SkillContainer> skills = new List<SkillContainer>();
+        public IEnumerable<SkillContainer> Skills
+        {
+            get
+            {
+                foreach (var skill in skills)
+                    yield return skill;
+            }
+        }
 
-        public int RequiredTraitsInPool = DefaultPoolSize;
+        #region Traits
+        private List<TraitContainer> traits = new List<TraitContainer>();
+        public IEnumerable<TraitContainer> Traits
+        {
+            get
+            {
+                foreach (var trait in traits)
+                    yield return trait;
+            }
+        }
 
-        public IntRange totalPassionRange;
-        public IntRange AgeRange;
+        public void AddTrait(Trait trait)
+        {
+            traits.Add(new TraitContainer(trait, OnChange));
+            OnChange();
+        }
 
-        public Gender gender;
-        public int randomRerollLimit;
-        public HealthOptions FilterHealthCondition;
-        public IncapableOptions FilterIncapable;
+        public void TraitUpdated(int index, Trait trait)
+        {
+            traits[index].trait = trait;
+            OnChange();
+        }
+
+        public void TraitRemoved(Trait trait)
+        {
+            var needToRemoveTC = traits.FirstOrDefault(tc => tc.trait == trait);
+            traits.Remove(needToRemoveTC);
+            OnChange();
+        }
+        #endregion
+
+        private int _RequiredTraitsInPool = DefaultPoolSize;
+        public int RequiredTraitsInPool { get => _RequiredTraitsInPool; set => _RequiredTraitsInPool = value; }
+
+        public IntRange passionRange;
+        //private int passionRangeMin;
+        //public int PassionRangeMin
+        //{
+        //    get => passionRangeMin;
+        //    set
+        //    {
+        //        passionRangeMin = value;
+        //        OnChange();
+        //    }
+        //}
+        //private int passionRangeMax;
+        //public int PassionRangeMax
+        //{
+        //    get => passionRangeMax;
+        //    set
+        //    {
+        //        passionRangeMax = value;
+        //        OnChange();
+        //    }
+        //}
+
+        public IntRange ageRange;
+        //private int ageRangeMin;
+        //public int AgeRangeMin
+        //{
+        //    get => ageRangeMin;
+        //    set
+        //    {
+        //        ageRangeMin = value;
+        //        OnChange();
+        //    }
+        //}
+        //private int ageRangeMax;
+        //public int AgeRangeMax
+        //{
+        //    get => ageRangeMax;
+        //    set
+        //    {
+        //        ageRangeMax = value;
+        //        OnChange();
+        //    }
+        //}
+
+        private Gender gender;
+        public Gender Gender
+        {
+            get => gender;
+            set
+            {
+                gender = value;
+                OnChange();
+            }
+        }
+
+        private int rerollLimit;
+        public int RerollLimit
+        {
+            get => rerollLimit;
+            set
+            {
+                rerollLimit = value;
+                OnChange();
+            }
+        }
+
+        private HealthOptions filterHealthCondition;
+        public HealthOptions FilterHealthCondition
+        {
+            get => filterHealthCondition;
+            set
+            {
+                filterHealthCondition = value;
+                OnChange();
+            }
+        }
+
+        private IncapableOptions filterIncapable;
+        public IncapableOptions FilterIncapable
+        {
+            get => filterIncapable;
+            set
+            {
+                filterIncapable = value;
+                OnChange();
+            }
+        }
 
         public PawnFilter()
         {
@@ -56,27 +175,31 @@ namespace RandomPlus
 
         public void ResetSkills()
         {
-            skillFilterList.Clear();
+            skills.Clear();
             foreach (var skilldef in DefDatabase<SkillDef>.AllDefs)
             {
-                skillFilterList.Add(new SkillContainer(skilldef));
+                skills.Add(new SkillContainer(skilldef, OnChange));
             }
-            totalPassionRange = new IntRange(TotalPassionMinDefault, TotalPassionMaxDefault);
+            passionRange = new IntRange(PassionMinDefault, PassionMaxDefault);
+            OnChange();
         }
 
         public void ResetTraits()
         {
-            Traits.Clear();
+            traits.Clear();
+            RequiredTraitsInPool = DefaultPoolSize;
+            OnChange();
         }
 
         public void ResetOther()
         {
             gender = Gender.None;
-            randomRerollLimit = (int)DefaultRerollLimit;
-            FilterHealthCondition = HealthOptions.AllowAll;
-            FilterIncapable = IncapableOptions.AllowAll;
+            rerollLimit = (int)DefaultRerollLimit;
+            filterHealthCondition = HealthOptions.AllowAll;
+            filterIncapable = IncapableOptions.AllowAll;
 
-            AgeRange = new IntRange(MinAgeDefault, MaxAgeDefault);
+            ageRange = new IntRange(MinAgeDefault, MaxAgeDefault);
+            OnChange();
         }
 
         public void ResetAll()
@@ -86,34 +209,39 @@ namespace RandomPlus
             ResetOther();
         }
 
+        public void OnChange()
+        {
+
+        }
+
         public void ExposeData()
         {
             int version = 1;
             Scribe_Values.Look(ref this.name, "name", "");
             Scribe_Values.Look(ref version, "version", 1);
-            Scribe_Collections.Look(ref this.skillFilterList, "skills", LookMode.Deep, null);
-            Scribe_Collections.Look(ref this.Traits, "traits", LookMode.Deep, null);
+            Scribe_Collections.Look(ref this.skills, "skills", LookMode.Deep, null);
+            Scribe_Collections.Look(ref this.traits, "traits", LookMode.Deep, null);
 
-            Scribe_Values.Look(ref RequiredTraitsInPool, "poolSize", DefaultPoolSize);
+            Scribe_Values.Look(ref _RequiredTraitsInPool, "poolSize", DefaultPoolSize);
 
-            Scribe_Values.Look(ref totalPassionRange.min, "passionRangeMin", TotalPassionMinDefault);
-            Scribe_Values.Look(ref totalPassionRange.max, "passionRangeMax", TotalPassionMaxDefault);
+            Scribe_Values.Look(ref passionRange.min, "passionRangeMin", PassionMinDefault);
+            Scribe_Values.Look(ref passionRange.max, "passionRangeMax", PassionMaxDefault);
 
-            Scribe_Values.Look(ref AgeRange.min, "ageRangeMin", MinAgeDefault);
-            Scribe_Values.Look(ref AgeRange.max, "ageRangeMax", MaxAgeDefault);
+            Scribe_Values.Look(ref ageRange.min, "ageRangeMin", MinAgeDefault);
+            Scribe_Values.Look(ref ageRange.max, "ageRangeMax", MaxAgeDefault);
 
-            Scribe_Values.Look(ref randomRerollLimit, "rerollLimit", (int)DefaultRerollLimit);
+            Scribe_Values.Look(ref rerollLimit, "rerollLimit", (int)DefaultRerollLimit);
             Scribe_Values.Look(ref gender, "gender", Gender.None);
-            Scribe_Values.Look(ref FilterHealthCondition, "healthCondition", HealthOptions.AllowAll);
-            Scribe_Values.Look(ref FilterIncapable, "incapable", IncapableOptions.AllowAll);
+            Scribe_Values.Look(ref filterHealthCondition, "healthCondition", HealthOptions.AllowAll);
+            Scribe_Values.Look(ref filterIncapable, "incapable", IncapableOptions.AllowAll);
 
             switch (Scribe.mode)
             {
                 case LoadSaveMode.Saving:
-                    
+
                     break;
                 case LoadSaveMode.LoadingVars:
-                    
+
                     break;
             }
         }

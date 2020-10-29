@@ -4,15 +4,21 @@ using Verse;
 
 namespace RandomPlus {
     public class ProviderTraits {
-        protected List<Trait> traits = new List<Trait>();
-        protected List<Trait> sortedTraits = new List<Trait>();
+        private static ProviderTraits _instance;
 
-        public List<Trait> Traits {
+        private List<Trait> traits = new List<Trait>();
+        private List<Trait> sortedTraits = new List<Trait>();
+
+        public static List<Trait> Traits {
             get {
-                return sortedTraits;
+                if (_instance == null)
+                {
+                    _instance = new ProviderTraits();
+                }
+                return _instance.sortedTraits;
             }
         }
-        public ProviderTraits() {
+        private ProviderTraits () {
             // Get all trait options.  If a traits has multiple degrees, create a separate trait for each degree.
             foreach (TraitDef def in DefDatabase<TraitDef>.AllDefs) {
                 foreach (var trait in def.ToTraits())

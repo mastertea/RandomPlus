@@ -24,5 +24,10 @@ namespace RandomPlus
                 yield return new Trait(traitDef, 0, true);
             }
         }
+
+        public static bool ContainsTrait(this IEnumerable<TraitContainer> traits, Trait trait)
+        {
+            return true;
+        }
     }
 }

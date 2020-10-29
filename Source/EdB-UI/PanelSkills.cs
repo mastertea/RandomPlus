@@ -105,7 +105,7 @@ namespace RandomPlus
                 RandomSettings.PawnFilter.ResetSkills();
             }
             
-            int skillCount = RandomSettings.PawnFilter.skillFilterList.Count;
+            int skillCount = RandomSettings.PawnFilter.Skills.Count();
             float rowHeight = 26;
             float height = rowHeight * skillCount;
             bool willScroll = height > RectScrollView.height;
@@ -118,9 +118,9 @@ namespace RandomPlus
 
                 Rect rect;
                 Text.Font = GameFont.Small;
-                foreach (var skillFilter in RandomSettings.PawnFilter.skillFilterList)
+                foreach (var skillFilter in RandomSettings.PawnFilter.Skills)
                 {
-                    SkillDef def = skillFilter.skillDef;
+                    SkillDef def = skillFilter.SkillDef;
                     //bool disabled = skill.TotallyDisabled;
 
                     // Draw the label.
@@ -135,11 +135,11 @@ namespace RandomPlus
                     
                     //Passion passion = customPawn.currentPassions[skill.def];
                     Texture2D image;
-                    if (skillFilter.passion == Passion.Minor)
+                    if (skillFilter.Passion == Passion.Minor)
                     {
                         image = Textures.TexturePassionMinor;
                     }
-                    else if (skillFilter.passion == Passion.Major)
+                    else if (skillFilter.Passion == Passion.Major)
                     {
                         image = Textures.TexturePassionMajor;
                     }
@@ -237,10 +237,10 @@ namespace RandomPlus
                 //    "", 2);
 
                 string labelText = string.Format("RandomPlus.PanelSkills.PassionSlider".Translate(),
-                    RandomSettings.PawnFilter.totalPassionRange.min,
-                    RandomSettings.PawnFilter.totalPassionRange.max);
+                    RandomSettings.PawnFilter.passionRange.min,
+                    RandomSettings.PawnFilter.passionRange.max);
                 Widgets.Label(totalPassionLabelRect, labelText);
-                Widgets.IntRange(totalPassionRangeRect, 2042, ref RandomSettings.PawnFilter.totalPassionRange,
+                Widgets.IntRange(totalPassionRangeRect, 2042, ref RandomSettings.PawnFilter.passionRange,
                     0, //PawnFilter.MinAgeDefault, 
                     DefDatabase<SkillDef>.AllDefs.ToArray().Length,
                     "", 2);
@@ -347,33 +347,33 @@ namespace RandomPlus
 
         protected void IncreasePassion(SkillContainer filter)
         {
-            if (filter.passion == Passion.None)
+            if (filter.Passion == Passion.None)
             {
-                filter.passion = Passion.Minor;
+                filter.Passion = Passion.Minor;
             }
-            else if (filter.passion == Passion.Minor)
+            else if (filter.Passion == Passion.Minor)
             {
-                filter.passion = Passion.Major;
+                filter.Passion = Passion.Major;
             }
-            else if (filter.passion == Passion.Major)
+            else if (filter.Passion == Passion.Major)
             {
-                filter.passion = Passion.None;
+                filter.Passion = Passion.None;
             }
         }
 
         protected void DecreasePassion(SkillContainer filter)
         {
-            if (filter.passion == Passion.None)
+            if (filter.Passion == Passion.None)
             {
-                filter.passion = Passion.Major;
+                filter.Passion = Passion.Major;
             }
-            else if (filter.passion == Passion.Minor)
+            else if (filter.Passion == Passion.Minor)
             {
-                filter.passion = Passion.None;
+                filter.Passion = Passion.None;
             }
-            else if (filter.passion == Passion.Major)
+            else if (filter.Passion == Passion.Major)
             {
-                filter.passion = Passion.Minor;
+                filter.Passion = Passion.Minor;
             }
         }
 

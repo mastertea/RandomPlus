@@ -129,10 +129,10 @@ namespace RandomPlus
             }
 
             Rect rerollLabelRect = new Rect(620f, 40f, 200f, 30f);
-            string labelText = "RandomPlus.RerollLabel".Translate() + RandomSettings.RandomRerollCounter() + "/" + RandomSettings.RandomRerollLimit();
+            string labelText = "RandomPlus.RerollLabel".Translate() + RandomSettings.RandomRerollCounter() + "/" + RandomSettings.PawnFilter.RerollLimit;
 
             var tmpSave = GUI.color;
-            if (RandomSettings.RandomRerollCounter() >= RandomSettings.RandomRerollLimit())
+            if (RandomSettings.RandomRerollCounter() >= RandomSettings.PawnFilter.RerollLimit)
                 GUI.color = Color.red;
             Widgets.Label(rerollLabelRect, labelText);
             GUI.color = tmpSave;

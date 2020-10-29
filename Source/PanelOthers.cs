@@ -73,10 +73,10 @@ namespace RandomPlus
                 drawIncapable(incapableButtonRect);
 
                 string labelText = string.Format("RandomPlus.PanelOthers.AgeLabel".Translate(),
-                    RandomSettings.PawnFilter.AgeRange.min, 
-                    RandomSettings.PawnFilter.AgeRange.max);
+                    RandomSettings.PawnFilter.ageRange.min, 
+                    RandomSettings.PawnFilter.ageRange.max);
                 Widgets.Label(ageLabelRect, labelText);
-                Widgets.IntRange(ageRangeRect, 20, ref RandomSettings.PawnFilter.AgeRange,
+                Widgets.IntRange(ageRangeRect, 20, ref RandomSettings.PawnFilter.ageRange,
                     0, //PawnFilter.MinAgeDefault, 
                     PawnFilter.MaxAgeDefault,
                     "", 2);
@@ -93,17 +93,17 @@ namespace RandomPlus
             GUI.color = Color.white;
         }
 
-        private readonly static Action<Enum> rerollCallback = (Enum val) => RandomSettings.SetRandomRerollLimit((int)(PawnFilter.RerollLimitOptions)val);
+        private readonly static Action<Enum> rerollCallback = (Enum val) => RandomSettings.PawnFilter.RerollLimit = (int)(PawnFilter.RerollLimitOptions)val;
         public void drawRerollLimit(Rect rect)
         {
-            drawButton(rect, RandomSettings.RandomRerollLimit().ToString(), typeof(PawnFilter.RerollLimitOptions), PawnFilter.RerollLimitOptionValues, rerollCallback);
+            drawButton(rect, RandomSettings.PawnFilter.RerollLimit.ToString(), typeof(PawnFilter.RerollLimitOptions), PawnFilter.RerollLimitOptionValues, rerollCallback);
         }
 
         private readonly static Action<Enum> genderCallback = (Enum val) => RandomSettings.SetGenderFilter((Gender)val);
         public void drawGender(Rect rect)
         {
             var displayedNameArray = Enum.GetValues(typeof(Gender)).Cast<Gender>().ToList().Select((gender) => GenderUtility.GetLabel(gender)).ToArray();
-            drawButton(rect, GenderUtility.GetLabel(RandomSettings.PawnFilter.gender), typeof(Gender), displayedNameArray, genderCallback, false);
+            drawButton(rect, GenderUtility.GetLabel(RandomSettings.PawnFilter.Gender), typeof(Gender), displayedNameArray, genderCallback, false);
         }
 
         private readonly static Action<Enum> healthCallback = (Enum val) => RandomSettings.PawnFilter.FilterHealthCondition = (PawnFilter.HealthOptions)val;

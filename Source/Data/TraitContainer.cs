@@ -1,5 +1,6 @@
 ﻿using Verse;
 using RimWorld;
+using System;
 
 namespace RandomPlus
 {
@@ -19,14 +20,17 @@ namespace RandomPlus
 
         public TraitFilterType traitFilter;
 
+        private Action OnChange;
+
         public TraitContainer()
         {
             
         }
 
-        public TraitContainer(Trait trait)
+        public TraitContainer(Trait trait, Action OnChange)
         {
             this.trait = trait;
+            this.OnChange = OnChange;
         }
 
         public void ExposeData()
