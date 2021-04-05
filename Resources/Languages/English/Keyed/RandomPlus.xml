@@ -32,6 +32,7 @@
 	<RandomPlus.PanelOthers.HealthOptions.AllowAll>Allow All</RandomPlus.PanelOthers.HealthOptions.AllowAll>
 	<RandomPlus.PanelOthers.HealthOptions.OnlyStartConditions>Only Start Conditions</RandomPlus.PanelOthers.HealthOptions.OnlyStartConditions>
 	<RandomPlus.PanelOthers.HealthOptions.NoPain>No Pain</RandomPlus.PanelOthers.HealthOptions.NoPain>
+	<RandomPlus.PanelOthers.HealthOptions.NoAddiction>No Addiction</RandomPlus.PanelOthers.HealthOptions.NoAddiction>
 	<RandomPlus.PanelOthers.HealthOptions.AllowNone>Allow None</RandomPlus.PanelOthers.HealthOptions.AllowNone>
 	
 	<RandomPlus.PanelOthers.IncapableOptionLabel>Incapable:</RandomPlus.PanelOthers.IncapableOptionLabel>

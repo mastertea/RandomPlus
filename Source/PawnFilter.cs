@@ -19,11 +19,12 @@ namespace RandomPlus
         public readonly static string[] RerollLimitOptionValues = new string[] { "100", "250", "500", "1000", "2500", "5000", "10000", "50000" };
         public static readonly RerollLimitOptions DefaultRerollLimit = RerollLimitOptions.N1000;
 
-        public enum HealthOptions { AllowAll, OnlyStartCondition, NoPain, AllowNone }
+        public enum HealthOptions { AllowAll, OnlyStartCondition, NoPain, NoAddiction, AllowNone }
         public readonly static string[] HealthOptionValues = new string[] {
             "RandomPlus.PanelOthers.HealthOptions.AllowAll",
             "RandomPlus.PanelOthers.HealthOptions.OnlyStartConditions",
             "RandomPlus.PanelOthers.HealthOptions.NoPain",
+            "RandomPlus.PanelOthers.HealthOptions.NoAddiction",
             "RandomPlus.PanelOthers.HealthOptions.AllowNone"
         };
 
@@ -81,48 +82,8 @@ namespace RandomPlus
         public int RequiredTraitsInPool { get => _RequiredTraitsInPool; set => _RequiredTraitsInPool = value; }
 
         public IntRange passionRange;
-        //private int passionRangeMin;
-        //public int PassionRangeMin
-        //{
-        //    get => passionRangeMin;
-        //    set
-        //    {
-        //        passionRangeMin = value;
-        //        OnChange();
-        //    }
-        //}
-        //private int passionRangeMax;
-        //public int PassionRangeMax
-        //{
-        //    get => passionRangeMax;
-        //    set
-        //    {
-        //        passionRangeMax = value;
-        //        OnChange();
-        //    }
-        //}
 
         public IntRange ageRange;
-        //private int ageRangeMin;
-        //public int AgeRangeMin
-        //{
-        //    get => ageRangeMin;
-        //    set
-        //    {
-        //        ageRangeMin = value;
-        //        OnChange();
-        //    }
-        //}
-        //private int ageRangeMax;
-        //public int AgeRangeMax
-        //{
-        //    get => ageRangeMax;
-        //    set
-        //    {
-        //        ageRangeMax = value;
-        //        OnChange();
-        //    }
-        //}
 
         private Gender gender;
         public Gender Gender

@@ -128,6 +128,7 @@ namespace RandomPlus
                     return false;
             }
 
+            // handle health options
             switch (pawnFilter.FilterHealthCondition) {
                 case PawnFilter.HealthOptions.AllowAll:
                     break;
@@ -141,12 +142,18 @@ namespace RandomPlus
                     if (foundPain != null)
                         return false;
                     break;
+                case PawnFilter.HealthOptions.NoAddiction:
+                    var foundAddiction = pawn.health.hediffSet.hediffs.FirstOrDefault((hediff) => hediff is Hediff_Addiction);
+                    if (foundAddiction != null)
+                        return false;
+                    break;
                 case PawnFilter.HealthOptions.AllowNone:
                     if (pawn.health.hediffSet.hediffs.Count > 0)
                         return false;
                     break;
             }
 
+            // handle work options
             switch (pawnFilter.FilterIncapable) {
                 case PawnFilter.IncapableOptions.AllowAll:
                     break;
