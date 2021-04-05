@@ -36,7 +36,7 @@ namespace RandomPlus {
                 ComputeSizes();
             }
         }
-        public string ConfirmButtonLabel = "EdB.PC.Common.Close".Translate();
+        public string ConfirmButtonLabel = "RandomPlus.Dialog.Close".Translate();
 
         public string CancelButtonLabel = null;
 

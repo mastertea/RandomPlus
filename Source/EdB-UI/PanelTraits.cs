@@ -113,6 +113,7 @@ namespace RandomPlus
                     {
                         Trait originalTrait = localTrait;
                         Trait selectedTrait = originalTrait;
+                        ComputeDisallowedTraits(originalTrait);
                         Dialog_Options<Trait> dialog = new Dialog_Options<Trait>(ProviderTraits.Traits)
                         {
                             NameFunc = (Trait t) =>
@@ -156,14 +157,14 @@ namespace RandomPlus
                         };
                         Find.WindowStack.Add(dialog);
                     };
-                    field.PreviousAction = () =>
-                    {
-                        SelectPreviousTrait(index);
-                    };
-                    field.NextAction = () =>
-                    {
-                        SelectNextTrait(index);
-                    };
+                    //field.PreviousAction = () =>
+                    //{
+                    //    SelectPreviousTrait(index);
+                    //};
+                    //field.NextAction = () =>
+                    //{
+                    //    SelectNextTrait(index);
+                    //};
                     field.Draw();
 
                     // Remove trait button.
@@ -275,21 +276,24 @@ namespace RandomPlus
                 {
                     continue;
                 }
-                // add exTags
-                tc.trait.def.exclusionTags.ForEach((t) => exTags.AddDistinct(t));
 
                 if (tc.traitFilter == TraitContainer.TraitFilterType.Required)
+                {
+                    // add exTags
+                    tc.trait.def.exclusionTags.ForEach((t) => exTags.AddDistinct(t));
+
+                    // filter conflicting traits
+                    if (tc.trait.def.conflictingTraits != null)
+                    {
+                        foreach (var c in tc.trait.def.conflictingTraits)
+                        {
+                            disallowedTraitDefs.Add(c);
+                        }
+                    }
                     disallowedTraitDefs.Add(tc.trait.def);
+                }
                 else
                     disallowedTraitLabels.Add(tc.trait.Label);
-
-                if (tc.trait.def.conflictingTraits != null)
-                {
-                    foreach (var c in tc.trait.def.conflictingTraits)
-                    {
-                        disallowedTraitDefs.Add(c);
-                    }
-                }
             }
 
             foreach (TraitDef def in DefDatabase<TraitDef>.AllDefs)
@@ -301,81 +305,81 @@ namespace RandomPlus
             }
         }
 
-        protected void SelectNextTrait(int traitIndex)
-        {
-            Trait currentTrait = RandomSettings.PawnFilter.Traits.ElementAt(traitIndex).trait;
-            ComputeDisallowedTraits(currentTrait);
-            int index = -1;
-            if (currentTrait != null)
-            {
-                index = ProviderTraits.Traits.FindIndex((Trait t) => {
-                    return t.Label.Equals(currentTrait.Label);
-                });
-            }
-            int count = 0;
-            do
-            {
-                index++;
-                if (index >= ProviderTraits.Traits.Count)
-                {
-                    index = 0;
-                }
-                if (++count > ProviderTraits.Traits.Count + 1)
-                {
-                    index = -1;
-                    break;
-                }
-            }
-            while (index != -1 &&
-                   (RandomSettings.PawnFilter.Traits.ContainsTrait(ProviderTraits.Traits[index]) ||
-                   disallowedTraitDefs.Contains(ProviderTraits.Traits[index].def) ||
-                   disallowedTraitLabels.Contains(ProviderTraits.Traits[index].Label)));
+        //protected void SelectNextTrait(int traitIndex)
+        //{
+        //    Trait currentTrait = RandomSettings.PawnFilter.Traits.ElementAt(traitIndex).trait;
+        //    ComputeDisallowedTraits(currentTrait);
+        //    int index = -1;
+        //    if (currentTrait != null)
+        //    {
+        //        index = ProviderTraits.Traits.FindIndex((Trait t) => {
+        //            return t.Label.Equals(currentTrait.Label);
+        //        });
+        //    }
+        //    int count = 0;
+        //    do
+        //    {
+        //        index++;
+        //        if (index >= ProviderTraits.Traits.Count)
+        //        {
+        //            index = 0;
+        //        }
+        //        if (++count > ProviderTraits.Traits.Count + 1)
+        //        {
+        //            index = -1;
+        //            break;
+        //        }
+        //    }
+        //    while (index != -1 &&
+        //           (RandomSettings.PawnFilter.Traits.ContainsTrait(ProviderTraits.Traits[index]) ||
+        //           disallowedTraitDefs.Contains(ProviderTraits.Traits[index].def) ||
+        //           disallowedTraitLabels.Contains(ProviderTraits.Traits[index].Label)));
 
-            Trait newTrait = null;
-            if (index > -1)
-            {
-                newTrait = ProviderTraits.Traits[index];
-            }
-            RandomSettings.PawnFilter.TraitUpdated(traitIndex, newTrait);
-        }
+        //    Trait newTrait = null;
+        //    if (index > -1)
+        //    {
+        //        newTrait = ProviderTraits.Traits[index];
+        //    }
+        //    RandomSettings.PawnFilter.TraitUpdated(traitIndex, newTrait);
+        //}
 
-        protected void SelectPreviousTrait(int traitIndex)
-        {
-            Trait currentTrait = RandomSettings.PawnFilter.Traits.ElementAt(traitIndex).trait;
-            ComputeDisallowedTraits(currentTrait);
-            int index = -1;
-            if (currentTrait != null)
-            {
-                index = ProviderTraits.Traits.FindIndex((Trait t) => {
-                    return t.Label.Equals(currentTrait.Label);
-                });
-            }
-            int count = 0;
-            do
-            {
-                index--;
-                if (index < 0)
-                {
-                    index = ProviderTraits.Traits.Count - 1;
-                }
-                if (++count > ProviderTraits.Traits.Count + 1)
-                {
-                    index = -1;
-                    break;
-                }
-            }
-            while (index != -1 &&
-                   (RandomSettings.PawnFilter.Traits.ContainsTrait(ProviderTraits.Traits[index]) ||
-                   disallowedTraitDefs.Contains(ProviderTraits.Traits[index].def) ||
-                   disallowedTraitLabels.Contains(ProviderTraits.Traits[index].Label)));
+        //protected void SelectPreviousTrait(int traitIndex)
+        //{
+        //    Trait currentTrait = RandomSettings.PawnFilter.Traits.ElementAt(traitIndex).trait;
+        //    ComputeDisallowedTraits(currentTrait);
+        //    int index = -1;
+        //    if (currentTrait != null)
+        //    {
+        //        index = ProviderTraits.Traits.FindIndex((Trait t) => {
+        //            return t.Label.Equals(currentTrait.Label);
+        //        });
+        //    }
+        //    int count = 0;
+        //    do
+        //    {
+        //        index--;
+        //        if (index < 0)
+        //        {
+        //            index = ProviderTraits.Traits.Count - 1;
+        //        }
+        //        if (++count > ProviderTraits.Traits.Count + 1)
+        //        {
+        //            index = -1;
+        //            break;
+        //        }
+        //    }
+        //    while (index != -1 &&
+        //           (RandomSettings.PawnFilter.Traits.ContainsTrait(ProviderTraits.Traits[index]) ||
+        //           disallowedTraitDefs.Contains(ProviderTraits.Traits[index].def) ||
+        //           disallowedTraitLabels.Contains(ProviderTraits.Traits[index].Label)));
 
-            Trait newTrait = null;
-            if (index > -1)
-            {
-                newTrait = ProviderTraits.Traits[index];
-            }
-            RandomSettings.PawnFilter.TraitUpdated(traitIndex, newTrait);
-        }
+        //    Trait newTrait = null;
+        //    if (index > -1)
+        //    {
+        //        newTrait = ProviderTraits.Traits[index];
+        //    }
+        //    RandomSettings.PawnFilter.TraitUpdated(traitIndex, newTrait);
+        //}
 
         protected void ClearTrait(int traitIndex)
         {

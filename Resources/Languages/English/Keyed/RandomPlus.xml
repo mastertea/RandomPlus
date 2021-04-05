@@ -42,6 +42,8 @@
 	
 	<RandomPlus.PanelOthers.AgeLabel>Age: {0} - {1}</RandomPlus.PanelOthers.AgeLabel>
 
-  <RandomPlus.Debug.QuickStartButton>Test[RandomPlus]</RandomPlus.Debug.QuickStartButton>
+	<RandomPlus.Debug.QuickStartButton>Test[RandomPlus]</RandomPlus.Debug.QuickStartButton>
+	
+	<RandomPlus.Dialog.Close>Close</RandomPlus.Dialog.Close>
 
 </LanguageData>
