@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+
+<Defs>
+  
+  <KeyBindingDef ParentName="DevelopmentKeyBinding">
+    <defName>Dev_QuickGoToConfigPawnPage</defName>
+    <label>go to config pawn page</label>
+    <devModeOnly>true</devModeOnly>
+  </KeyBindingDef>
+
+</Defs>

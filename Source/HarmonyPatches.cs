@@ -164,7 +164,7 @@ namespace RandomPlus
                 var newCode = new List<CodeInstruction>();
                 newCode.Add(new CodeInstruction(OpCodes.Ldloc_2));
                 var methodInfo = typeof(Patch_DoMainMenuControls)
-                    .GetMethod("AddTestButton", BindingFlags.Public | BindingFlags.Static);
+                    .GetMethod("AddQuickGoToConfigPawnPage", BindingFlags.Public | BindingFlags.Static);
                 newCode.Add(new CodeInstruction(OpCodes.Call, methodInfo));
                 codes.InsertRange(startIndex + 2, newCode);
             }
@@ -172,35 +172,47 @@ namespace RandomPlus
             return codes;
         }
 
-        public static void AddTestButton(List<ListableOption> optList)
+        public static void AddQuickGoToConfigPawnPage(List<ListableOption> optList)
         {
-            optList.Add(new ListableOption((string)"RandomPlus.Debug.QuickStartButton".Translate(), () => {
-                var page_select_scenario = new Page_SelectScenario();
-                Find.WindowStack.Add(page_select_scenario);
+            if (Event.current.type == EventType.KeyDown) {
+                KeyBindingDef quickKey = DefDatabase<KeyBindingDef>.GetNamed("Dev_QuickGoToConfigPawnPage");
+                if (quickKey.JustPressed)
+                {
+                    Patch_DoMainMenuControls.GoToConfigPawnPage();
+                }
+            }
+            
+            //optList.Add(new ListableOption((string)"RandomPlus.Debug.QuickStartButton".Translate(), () => {
+            //    GoToConfigPawnPage();
+            //}, (string)null));
+        }
 
-                var methodInfo0 = typeof(Page_SelectScenario).GetMethod("CanDoNext", BindingFlags.NonPublic | BindingFlags.Instance);
-                methodInfo0.Invoke(page_select_scenario, new object[0]);
-                var methodInfo1 = typeof(Page_SelectScenario).GetMethod("DoNext", BindingFlags.NonPublic | BindingFlags.Instance);
-                methodInfo1.Invoke(page_select_scenario, new object[0]);
+        public static void GoToConfigPawnPage()
+        {
+            var page_select_scenario = new Page_SelectScenario();
+            Find.WindowStack.Add(page_select_scenario);
 
-                var page_storyteller = (Page_SelectStoryteller)page_select_scenario.next;
-                Log.Message(page_storyteller.ToString());
-                var page_storyteller_methodInfo0 = typeof(Page_SelectStoryteller).GetMethod("CanDoNext", BindingFlags.NonPublic | BindingFlags.Instance);
-                page_storyteller_methodInfo0.Invoke(page_storyteller, new object[0]);
-                var page_storyteller_methodInfo1 = typeof(Page_SelectStoryteller).GetMethod("DoNext", BindingFlags.NonPublic | BindingFlags.Instance);
-                page_storyteller_methodInfo1.Invoke(page_storyteller, new object[0]);
+            var methodInfo0 = typeof(Page_SelectScenario).GetMethod("CanDoNext", BindingFlags.NonPublic | BindingFlags.Instance);
+            methodInfo0.Invoke(page_select_scenario, new object[0]);
+            var methodInfo1 = typeof(Page_SelectScenario).GetMethod("DoNext", BindingFlags.NonPublic | BindingFlags.Instance);
+            methodInfo1.Invoke(page_select_scenario, new object[0]);
 
-                var page_create_world = (Page_CreateWorldParams)page_storyteller.next;
+            var page_storyteller = (Page_SelectStoryteller)page_select_scenario.next;
+            Log.Message(page_storyteller.ToString());
+            var page_storyteller_methodInfo0 = typeof(Page_SelectStoryteller).GetMethod("CanDoNext", BindingFlags.NonPublic | BindingFlags.Instance);
+            page_storyteller_methodInfo0.Invoke(page_storyteller, new object[0]);
+            var page_storyteller_methodInfo1 = typeof(Page_SelectStoryteller).GetMethod("DoNext", BindingFlags.NonPublic | BindingFlags.Instance);
+            page_storyteller_methodInfo1.Invoke(page_storyteller, new object[0]);
 
-                var prop = typeof(Page_CreateWorldParams).GetField("planetCoverage", BindingFlags.NonPublic | BindingFlags.Instance);
-                prop.SetValue(page_create_world, 0.01f);
+            var page_create_world = (Page_CreateWorldParams)page_storyteller.next;
 
-                var page_create_world_methodInfo0 = typeof(Page_CreateWorldParams).GetMethod("CanDoNext", BindingFlags.NonPublic | BindingFlags.Instance);
-                page_create_world_methodInfo0.Invoke(page_create_world, new object[0]);
+            var prop = typeof(Page_CreateWorldParams).GetField("planetCoverage", BindingFlags.NonPublic | BindingFlags.Instance);
+            prop.SetValue(page_create_world, 0.01f);
 
-                page_create_world.next = new Page_ConfigureStartingPawns();
+            var page_create_world_methodInfo0 = typeof(Page_CreateWorldParams).GetMethod("CanDoNext", BindingFlags.NonPublic | BindingFlags.Instance);
+            page_create_world_methodInfo0.Invoke(page_create_world, new object[0]);
 
-            }, (string)null));
+            page_create_world.next = new Page_ConfigureStartingPawns();
         }
     }
 }
