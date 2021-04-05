@@ -138,6 +138,7 @@ namespace RandomPlus
                             },
                             EnabledFunc = (Trait t) =>
                             {
+                                // filter out conflicting traits
                                 return !(disallowedTraitDefs.Contains(t.def) || disallowedTraitLabels.Contains(t.Label));
                             },
                             CloseAction = () =>
@@ -266,6 +267,7 @@ namespace RandomPlus
         {
             disallowedTraitDefs.Clear();
             disallowedTraitLabels.Clear();
+            List<string> exTags = new List<string>();
 
             foreach (TraitContainer tc in RandomSettings.PawnFilter.Traits)
             {
@@ -273,6 +275,8 @@ namespace RandomPlus
                 {
                     continue;
                 }
+                // add exTags
+                tc.trait.def.exclusionTags.ForEach((t) => exTags.AddDistinct(t));
 
                 if (tc.traitFilter == TraitContainer.TraitFilterType.Required)
                     disallowedTraitDefs.Add(tc.trait.def);
@@ -285,6 +289,14 @@ namespace RandomPlus
                     {
                         disallowedTraitDefs.Add(c);
                     }
+                }
+            }
+
+            foreach (TraitDef def in DefDatabase<TraitDef>.AllDefs)
+            {
+                if (def.exclusionTags.Intersect(exTags).Any())
+                {
+                    disallowedTraitDefs.Add(def);
                 }
             }
         }
