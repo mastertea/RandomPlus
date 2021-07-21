@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using UnityEngine;
 using Verse;
 using Verse.Sound;
@@ -102,6 +103,7 @@ namespace RandomPlus
                     if (traitContainer != null)
                     {
                         field.Label = $"{traitContainer.trait.LabelCap}{LabelForTraitFilter(index)} {RandomSettings.GetTraitRollChanceText(traitContainer.trait.def)}";
+                        field.Tip = traitContainer.trait.CurrentData.description;
                     }
                     else
                     {
@@ -122,8 +124,7 @@ namespace RandomPlus
                             },
                             DescriptionFunc = (Trait t) =>
                             {
-                                return null;
-                                //return GetTraitTip(t, currentPawn);
+                                return t.CurrentData.description;
                             },
                             SelectedFunc = (Trait t) =>
                             {
@@ -232,8 +233,7 @@ namespace RandomPlus
                         return $"{t.LabelCap} {RandomSettings.GetTraitRollChanceText(t.def)}";
                     },
                     DescriptionFunc = (Trait t) => {
-                        return null;
-                        //return GetTraitTip(t, state.CurrentPawn);
+                        return t.CurrentData.description;
                     },
                     SelectedFunc = (Trait t) => {
                         return selectedTrait == t;
@@ -449,7 +449,5 @@ namespace RandomPlus
                 Find.WindowStack.Add(new FloatMenu(options));
             }
         }
-
-        
     }
 }

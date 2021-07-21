@@ -171,7 +171,7 @@ namespace RandomPlus
                 pawnFilter.ageRange.max != PawnFilter.MaxAgeDefault)
             {
                 if (pawnFilter.ageRange.min > pawn.ageTracker.AgeBiologicalYears || 
-                    pawnFilter.ageRange.max < pawn.ageTracker.AgeBiologicalYears)
+                    (pawnFilter.ageRange.max != PawnFilter.MaxAgeDefault && pawnFilter.ageRange.max < pawn.ageTracker.AgeBiologicalYears))
                     return false;
             }
 

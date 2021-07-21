@@ -72,9 +72,12 @@ namespace RandomPlus
                 Widgets.Label(incapableLabelRect, "RandomPlus.PanelOthers.IncapableOptionLabel".Translate());
                 drawIncapable(incapableButtonRect);
 
+                string minAgeString = RandomSettings.PawnFilter.ageRange.min.ToString();
+                string maxAgeString = (RandomSettings.PawnFilter.ageRange.max == PawnFilter.MaxAgeDefault) ? "∞" : RandomSettings.PawnFilter.ageRange.max.ToString();
+
                 string labelText = string.Format("RandomPlus.PanelOthers.AgeLabel".Translate(),
-                    RandomSettings.PawnFilter.ageRange.min, 
-                    RandomSettings.PawnFilter.ageRange.max);
+                    minAgeString,
+                    maxAgeString);
                 Widgets.Label(ageLabelRect, labelText);
                 Widgets.IntRange(ageRangeRect, 20, ref RandomSettings.PawnFilter.ageRange,
                     0, //PawnFilter.MinAgeDefault, 
