@@ -1,0 +1,49 @@
+2018/7/9 - Fixed texture loading issue.
+
+2018/7/17 - Added age filtering.
+
+2018/8/9 - Updated to match 0.19.0v
+
+2018/8/25 - Fixed bug for 0.19.2006
+
+2018/10/19 - Changed a 0 to a 1
+
+2019/6/13 - Added gender filter, trait filter mode (by evzhy)
+
+2019/6/16 - Added "No Incapabilities" filter (by evzhy)
+
+2019/11/12 - Lower minimum age cap
+
+2020/2/25 - Updated to 1.1
+
+2020/2/25 - Fix compatibility issues with other mods
+
+2020/2/26 - Fix trait filtering
+
+2020/3/5 - 
+Updated UI
+Remove harmony library, now requires harmony mod. 
+Added passion and pool filtering. 
+Remove source code from steam mod.
+
+2020/3/26 -
+Added translation support
+Added OnlyStartCondition and NoPain filtering
+Updated UI
+
+2020/8/15 - Added 1.2 to supported list
+
+2020/9/11 - Added Save/Load feature.
+
+2021/4/5 -
+-Improved trait filtering. Any trait marked as required now disables any other conflicting traits from being added. If you want to add a conflicting trait, you need to first change the conflicting trait to pool or exclude.
+-Added percentage chances to traits.
+-Added "No Addiction" filter option. May affect pre-saved health condition that using "Allow None".
+
+2021/7/21 -
+-Support for 1.3
+-Added tool tip descriptions for traits
+-Change max age filter value after 119 to infinity
+
+2021/7/22 -
+-fixed alignment issue with reroll label when using ideology dlc
