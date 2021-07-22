@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using RimWorld;
+using System.Linq;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -89,6 +90,18 @@ namespace RandomPlus
         }
     }
 
+    //[HarmonyPatch(typeof(Page_ConfigureStartingPawns), "DrawCharacterCard")]
+    //class Patch_MenuAlignment
+    //{
+    //    [HarmonyTranspiler]
+    //    static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+    //    {
+    //        var codes = new List<CodeInstruction>(instructions);
+
+    //        return codes;
+    //    }
+    //}
+
     [HarmonyPatch(typeof(CharacterCardUtility), "DrawCharacterCard")]
     class Patch_RandomEditButton
     {
@@ -111,14 +124,14 @@ namespace RandomPlus
             if (startIndex != -1)
             {
                 var methodInfo = typeof(Patch_RandomEditButton)
-                    .GetMethod("DrawEditButton", BindingFlags.Public | BindingFlags.Static);
+                    .GetMethod("InjectCustomUI", BindingFlags.Public | BindingFlags.Static);
                 codes.Insert(startIndex + 2, new CodeInstruction(OpCodes.Call, methodInfo));
             }
 
             return codes;
         }
 
-        public static void DrawEditButton()
+        public static void InjectCustomUI()
         {
             Rect editButtonRect = new Rect(620f, 0.0f, 50f, 30f);
 
@@ -187,6 +200,7 @@ namespace RandomPlus
             //}, (string)null));
         }
 
+        // Macro function go automaticially go straight to pawn select page
         public static void GoToConfigPawnPage()
         {
             var page_select_scenario = new Page_SelectScenario();
@@ -207,12 +221,41 @@ namespace RandomPlus
             var page_create_world = (Page_CreateWorldParams)page_storyteller.next;
 
             var prop = typeof(Page_CreateWorldParams).GetField("planetCoverage", BindingFlags.NonPublic | BindingFlags.Instance);
-            prop.SetValue(page_create_world, 0.01f);
+            prop.SetValue(page_create_world, 0.1f);
 
             var page_create_world_methodInfo0 = typeof(Page_CreateWorldParams).GetMethod("CanDoNext", BindingFlags.NonPublic | BindingFlags.Instance);
             page_create_world_methodInfo0.Invoke(page_create_world, new object[0]);
+            //var page_create_world_methodInfo1 = typeof(Page_CreateWorldParams).GetMethod("DoNext", BindingFlags.NonPublic | BindingFlags.Instance);
+            //page_create_world_methodInfo1.Invoke(page_create_world, new object[0]);
 
-            page_create_world.next = new Page_ConfigureStartingPawns();
+            var page_select_site = (Page_SelectStartingSite)page_create_world.next;
+
+            LongEventHandler.QueueLongEvent(() => {
+                while (Find.World == null) ;
+                LongEventHandler.ExecuteWhenFinished(() =>
+                {
+                    Find.WorldInterface.SelectedTile = RimWorld.Planet.TileFinder.RandomStartingTile();
+
+                    var page_select_site_methodInfo0 = typeof(Page_SelectStartingSite).GetMethod("CanDoNext", BindingFlags.NonPublic | BindingFlags.Instance);
+                    page_select_site_methodInfo0.Invoke(page_select_site, new object[0]);
+                    var page_create_world_methodInfo1 = typeof(Page_SelectStartingSite).GetMethod("DoNext", BindingFlags.NonPublic | BindingFlags.Instance);
+                    page_create_world_methodInfo1.Invoke(page_select_site, new object[0]);
+
+
+                    if (ModsConfig.IdeologyActive)
+                    {
+                        var page_ideo = (Page_ConfigureIdeo)page_select_site.next;
+                        page_ideo.SelectOrMakeNewIdeo(Find.IdeoManager.IdeosInViewOrder.RandomElement());
+
+                        var page_ideo_methodInfo0 = typeof(Page_ConfigureIdeo).GetMethod("CanDoNext", BindingFlags.NonPublic | BindingFlags.Instance);
+                        page_ideo_methodInfo0.Invoke(page_ideo, new object[0]);
+                        var page_ideo_methodInfo1 = typeof(Page_ConfigureIdeo).GetMethod("DoNext", BindingFlags.NonPublic | BindingFlags.Instance);
+                        page_ideo_methodInfo1.Invoke(page_ideo, new object[0]);
+                    }
+                });
+            }, "wait", true, null, false);
+
+            
         }
     }
 }
