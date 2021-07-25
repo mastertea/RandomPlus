@@ -67,7 +67,7 @@ namespace RandomPlus
                 Scribe.loader.InitLoading(GetFilePath());
                 Scribe_Collections.Look<PawnFilter>(ref RandomSettings.pawnFilterList, "list");
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 Log.Error("Failed to load file");
                 if (File.Exists(filePath))

@@ -25,6 +25,10 @@
 	
 	<RandomPlus.PanelOthers.Header>Other Options</RandomPlus.PanelOthers.Header>
 	
+	<RandomPlus.PanelOthers.RerollAlgorithmLabel>Reroll Algorithm:</RandomPlus.PanelOthers.RerollAlgorithmLabel>
+	<RandomPlus.PanelOthers.RerollAlgorithmOptionValues.Normal>Normal</RandomPlus.PanelOthers.RerollAlgorithmOptionValues.Normal>
+	<RandomPlus.PanelOthers.RerollAlgorithmOptionValues.Fast>Fast (Experimental)</RandomPlus.PanelOthers.RerollAlgorithmOptionValues.Fast>
+	
 	<RandomPlus.PanelOthers.RerollLimitLabel>Reroll Limit:</RandomPlus.PanelOthers.RerollLimitLabel>
 	<RandomPlus.PanelOthers.GenderLabel>Gender Filter:</RandomPlus.PanelOthers.GenderLabel>
 	

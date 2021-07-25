@@ -26,6 +26,7 @@ namespace RandomPlus
         private readonly static Vector2 otherLabelOffset = new Vector2(0, 24);
         private readonly static Vector2 otherButtonOffset = new Vector2(0, 24);
 
+        private Rect randomRerollAlgorithmLabelRect, randomRerollAlgorithmButtonRect;
         private Rect randomRerollLimitLabelRect, randomRerollLimitButtonRect;
         private Rect genderLabelRect, genderButtonRect;
         private Rect ageLabelRect, ageRangeRect;
@@ -36,8 +37,11 @@ namespace RandomPlus
         public override void Resize(Rect rect)
         {
             base.Resize(rect);
-            randomRerollLimitLabelRect = new Rect(18, 42, 150, 30);
-            randomRerollLimitButtonRect = new Rect(150, 43, 154, 20);
+            randomRerollAlgorithmLabelRect = new Rect(18, 42, 150, 30);
+            randomRerollAlgorithmButtonRect = new Rect(150, 43, 154, 20);
+
+            randomRerollLimitLabelRect = randomRerollAlgorithmLabelRect.OffsetBy(otherLabelOffset);
+            randomRerollLimitButtonRect = randomRerollAlgorithmButtonRect.OffsetBy(otherButtonOffset);
 
             genderLabelRect = randomRerollLimitLabelRect.OffsetBy(otherLabelOffset);
             genderButtonRect = randomRerollLimitButtonRect.OffsetBy(otherButtonOffset);
@@ -58,8 +62,11 @@ namespace RandomPlus
             base.DrawPanelContent();
 
             GUI.BeginGroup(mainRect);
-            try
-            {
+            try 
+            { 
+                Widgets.Label(randomRerollAlgorithmLabelRect, "RandomPlus.PanelOthers.RerollAlgorithmLabel".Translate());
+                drawRerollAlgorithm(randomRerollAlgorithmButtonRect);
+
                 Widgets.Label(randomRerollLimitLabelRect, "RandomPlus.PanelOthers.RerollLimitLabel".Translate());
                 drawRerollLimit(randomRerollLimitButtonRect);
 
@@ -83,10 +90,6 @@ namespace RandomPlus
                     0, //PawnFilter.MinAgeDefault, 
                     PawnFilter.MaxAgeDefault,
                     "", 2);
-
-                //Widgets.CheckboxLabeled(healthRect, "No Health Conditions", ref RandomSettings.PawnFilter.NoHealthConditions);
-                //Widgets.CheckboxLabeled(incapableRect, "No Incapabilities", ref RandomSettings.PawnFilter.NoIncapabilities);
-                //Widgets.CheckboxLabeled(dumbLaborRect, "No Dumb Labor Incapability", ref RandomSettings.PawnFilter.NoDumbLabor);
             }
             finally
             {
@@ -96,10 +99,16 @@ namespace RandomPlus
             GUI.color = Color.white;
         }
 
-        private readonly static Action<Enum> rerollCallback = (Enum val) => RandomSettings.PawnFilter.RerollLimit = (int)(PawnFilter.RerollLimitOptions)val;
+        private readonly static Action<Enum> rerollAlgorithmCallback = (Enum val) => RandomSettings.PawnFilter.RerollAlgorithm = (PawnFilter.RerollAlgorithmOptions)val;
+        public void drawRerollAlgorithm(Rect rect)
+        {
+            drawButton(rect, PawnFilter.RerollAlgorithmOptionValues[(int)RandomSettings.PawnFilter.RerollAlgorithm], typeof(PawnFilter.RerollAlgorithmOptions), PawnFilter.RerollAlgorithmOptionValues, rerollAlgorithmCallback);
+        }
+
+        private readonly static Action<Enum> rerollLimitCallback = (Enum val) => RandomSettings.PawnFilter.RerollLimit = (int)(PawnFilter.RerollLimitOptions)val;
         public void drawRerollLimit(Rect rect)
         {
-            drawButton(rect, RandomSettings.PawnFilter.RerollLimit.ToString(), typeof(PawnFilter.RerollLimitOptions), PawnFilter.RerollLimitOptionValues, rerollCallback);
+            drawButton(rect, RandomSettings.PawnFilter.RerollLimit.ToString(), typeof(PawnFilter.RerollLimitOptions), PawnFilter.RerollLimitOptionValues, rerollLimitCallback);
         }
 
         private readonly static Action<Enum> genderCallback = (Enum val) => RandomSettings.SetGenderFilter((Gender)val);

@@ -14,6 +14,12 @@ namespace RandomPlus
         public static readonly int MaxAgeDefault = 120;
 
         public static readonly int DefaultPoolSize = 0;
+        public enum RerollAlgorithmOptions { Normal, Fast }
+        public readonly static string[] RerollAlgorithmOptionValues = new string[] {
+            "RandomPlus.PanelOthers.RerollAlgorithmOptionValues.Normal",
+            "RandomPlus.PanelOthers.RerollAlgorithmOptionValues.Fast", 
+        };
+        public static readonly RerollAlgorithmOptions DefaultRerollAlgorithm = RerollAlgorithmOptions.Normal;
 
         public enum RerollLimitOptions { N100 = 100, N250 = 250, N500 = 500, N1000 = 1000, N2500 = 2500, N5000 = 5000, N10000 = 10000, N50000 = 50000 }
         public readonly static string[] RerollLimitOptionValues = new string[] { "100", "250", "500", "1000", "2500", "5000", "10000", "50000" };
@@ -96,7 +102,18 @@ namespace RandomPlus
             }
         }
 
-        private int rerollLimit;
+        private RerollAlgorithmOptions rerollAlgorithm = DefaultRerollAlgorithm;
+        public RerollAlgorithmOptions RerollAlgorithm
+        {
+            get => rerollAlgorithm;
+            set
+            {
+                rerollAlgorithm = value;
+                OnChange();
+            }
+        }
+
+        private int rerollLimit = (int)DefaultRerollLimit;
         public int RerollLimit
         {
             get => rerollLimit;
@@ -191,6 +208,7 @@ namespace RandomPlus
             Scribe_Values.Look(ref ageRange.min, "ageRangeMin", MinAgeDefault);
             Scribe_Values.Look(ref ageRange.max, "ageRangeMax", MaxAgeDefault);
 
+            Scribe_Values.Look(ref rerollAlgorithm, "rerollAlgorithm", DefaultRerollAlgorithm);
             Scribe_Values.Look(ref rerollLimit, "rerollLimit", (int)DefaultRerollLimit);
             Scribe_Values.Look(ref gender, "gender", Gender.None);
             Scribe_Values.Look(ref filterHealthCondition, "healthCondition", HealthOptions.AllowAll);

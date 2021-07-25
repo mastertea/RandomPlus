@@ -53,9 +53,8 @@ namespace RandomPlus
             }
             randomRerollCounter++;
 
-            if (pawnFilter.Gender != Gender.None && pawn.gender != Gender.None)
-                if (pawnFilter.Gender != pawn.gender)
-                    return false;
+            if (!CheckGenderIsSatisfied(pawn))
+                return false;
 
             List<SkillRecord> skillList = pawn.skills.skills;
             foreach (var skillFilter in pawnFilter.Skills)
@@ -175,6 +174,14 @@ namespace RandomPlus
                     return false;
             }
 
+            return true;
+        }
+
+        public static bool CheckGenderIsSatisfied(Pawn pawn)
+        {
+            if (pawnFilter.Gender != Gender.None && pawn.gender != Gender.None)
+                if (pawnFilter.Gender != pawn.gender)
+                    return false;
             return true;
         }
 
