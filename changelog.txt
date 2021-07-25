@@ -47,3 +47,6 @@ Updated UI
 
 2021/7/22 -
 -fixed alignment issue with reroll label when using ideology dlc
+
+2021/7/25 -
+-Added a new reroll agorithm option
