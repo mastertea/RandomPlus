@@ -4,6 +4,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace RandomPlus
 {
@@ -45,6 +46,102 @@ namespace RandomPlus
             randomRerollCounter = 0;
         }
 
+        static FieldInfo curPawnFieldInfo;
+        static MethodInfo randomAgeMethodInfo;
+        static MethodInfo randomTraitMethodInfo;
+        static MethodInfo randomSkillMethodInfo;
+        static MethodInfo randomHealthMethodInfo;
+        public static bool Reroll(Pawn pawn)
+        {
+            if (PawnFilter.RerollAlgorithm == PawnFilter.RerollAlgorithmOptions.Normal
+                || randomRerollCounter == 0)
+            {
+                return CheckPawnIsSatisfied(pawn);
+            }
+
+            if (curPawnFieldInfo == null)
+                curPawnFieldInfo = typeof(Page_ConfigureStartingPawns)
+                .GetField("curPawn", BindingFlags.NonPublic | BindingFlags.Instance);
+
+            if (randomAgeMethodInfo == null)
+                randomAgeMethodInfo = typeof(PawnGenerator)
+                    .GetMethod("GenerateRandomAge", BindingFlags.NonPublic | BindingFlags.Static);
+
+            if (randomTraitMethodInfo == null)
+                randomTraitMethodInfo = typeof(PawnGenerator)
+                    .GetMethod("GenerateTraits", BindingFlags.NonPublic | BindingFlags.Static);
+
+            if (randomSkillMethodInfo == null)
+                randomSkillMethodInfo = typeof(PawnGenerator)
+                    .GetMethod("GenerateSkills", BindingFlags.NonPublic | BindingFlags.Static);
+
+            if (randomHealthMethodInfo == null)
+                randomHealthMethodInfo = typeof(PawnGenerator)
+                    .GetMethod("GenerateInitialHediffs", BindingFlags.NonPublic | BindingFlags.Static);
+
+            PawnGenerationRequest request = new PawnGenerationRequest(
+                    Faction.OfPlayer.def.basicMemberKind,
+                    Faction.OfPlayer,
+                    PawnGenerationContext.PlayerStarter,
+                    forceGenerateNewPawn: true,
+                    mustBeCapableOfViolence: TutorSystem.TutorialMode,
+                    colonistRelationChanceFactor: 20f);
+
+            if (!CheckGenderIsSatisfied(pawn))
+            {
+                randomRerollCounter++;
+                return false;
+            }
+
+            while (randomRerollCounter < PawnFilter.RerollLimit)
+            {
+                randomRerollCounter++;
+
+                pawn.ageTracker = new Pawn_AgeTracker(pawn);
+                randomAgeMethodInfo.Invoke(null, new object[] { pawn, request });
+                if (!CheckAgeIsSatisfied(pawn))
+                    continue;
+
+                pawn.story.traits = new TraitSet(pawn);
+                pawn.skills = new Pawn_SkillTracker(pawn);
+                PawnBioAndNameGenerator.GiveAppropriateBioAndNameTo(pawn, pawn.story.birthLastName, request.Faction.def, request.ForceNoBackstory);
+                randomTraitMethodInfo.Invoke(null, new object[] { pawn, request });
+                randomSkillMethodInfo.Invoke(null, new object[] { pawn });
+                if (!CheckSkillsIsSatisfied(pawn) || !CheckTraitsIsSatisfied(pawn))
+                    continue;
+
+                for (int i = 0; i < 100; i++)
+                {
+                    pawn.health = new Pawn_HealthTracker(pawn);
+                    try
+                    {
+                        randomHealthMethodInfo.Invoke(null, new object[] { pawn, request });
+                        if (!(pawn.Dead || pawn.Destroyed || pawn.Downed))
+                            break;
+                    }
+                    catch (Exception)
+                    {
+                        Find.WorldPawns.RemoveAndDiscardPawnViaGC(pawn);
+                        return false;
+                    }
+                }
+                if (!CheckHealthIsSatisfied(pawn))
+                    continue;
+
+                pawn.workSettings.EnableAndInitialize();
+                if (!CheckWorkIsSatisfied(pawn))
+                    continue;
+
+                return true;
+            }
+
+            if (RandomRerollCounter() >= PawnFilter.RerollLimit)
+            {
+                return true;
+            }
+            return false;
+        }
+
         public static bool CheckPawnIsSatisfied(Pawn pawn)
         {
             if (RandomRerollCounter() >= PawnFilter.RerollLimit)
@@ -56,16 +153,56 @@ namespace RandomPlus
             if (!CheckGenderIsSatisfied(pawn))
                 return false;
 
+            if (!CheckSkillsIsSatisfied(pawn))
+                return false;
+
+            if (!CheckTraitsIsSatisfied(pawn))
+                return false;
+
+            if (!CheckHealthIsSatisfied(pawn))
+                return false;
+
+            if (!CheckWorkIsSatisfied(pawn))
+                return false;
+
+            if (!CheckAgeIsSatisfied(pawn))
+                return false;
+
+            return true;
+        }
+
+        public static bool CheckAgeIsSatisfied(Pawn pawn)
+        {
+            if (pawnFilter.ageRange.min != PawnFilter.MinAgeDefault ||
+                pawnFilter.ageRange.max != PawnFilter.MaxAgeDefault)
+            {
+                if (pawnFilter.ageRange.min > pawn.ageTracker.AgeBiologicalYears ||
+                    (pawnFilter.ageRange.max != PawnFilter.MaxAgeDefault && pawnFilter.ageRange.max < pawn.ageTracker.AgeBiologicalYears))
+                    return false;
+            }
+            return true;
+        }
+
+        public static bool CheckGenderIsSatisfied(Pawn pawn)
+        {
+            if (pawnFilter.Gender != Gender.None && pawn.gender != Gender.None)
+                if (pawnFilter.Gender != pawn.gender)
+                    return false;
+            return true;
+        }
+
+        public static bool CheckSkillsIsSatisfied(Pawn pawn)
+        {
             List<SkillRecord> skillList = pawn.skills.skills;
             foreach (var skillFilter in pawnFilter.Skills)
             {
-                if (skillFilter.Passion != Passion.None || 
+                if (skillFilter.Passion != Passion.None ||
                     skillFilter.MinValue > 0)
                 {
                     var skillRecord = skillList.FirstOrDefault(i => i.def == skillFilter.SkillDef);
                     if (skillRecord != null)
                     {
-                        if (skillRecord.passion < skillFilter.Passion || 
+                        if (skillRecord.passion < skillFilter.Passion ||
                             skillRecord.Level < skillFilter.MinValue)
                         {
                             return false;
@@ -90,6 +227,11 @@ namespace RandomPlus
                 }
             }
 
+            return true;
+        }
+
+        public static bool CheckTraitsIsSatisfied(Pawn pawn)
+        {
             // handle required and exclude traits
             var traitFilterList = pawnFilter.Traits;
             foreach (var traitContainer in traitFilterList)
@@ -110,12 +252,13 @@ namespace RandomPlus
             }
 
             // handle trait pool (optional)
-            if (pawnFilter.RequiredTraitsInPool > 0 && 
+            if (pawnFilter.RequiredTraitsInPool > 0 &&
                 pawnFilter.RequiredTraitsInPool <= pawnFilter.Traits.Count())
             {
                 int pawnHasTraitCounter = 0;
                 var traitPool = pawnFilter.Traits.Where(t => t.traitFilter == TraitContainer.TraitFilterType.Optional);
-                foreach (var traitContainer in traitPool) {
+                foreach (var traitContainer in traitPool)
+                {
                     if (HasTrait(pawn, traitContainer.trait))
                     {
                         pawnHasTraitCounter++;
@@ -127,8 +270,14 @@ namespace RandomPlus
                     return false;
             }
 
+            return true;
+        }
+
+        public static bool CheckHealthIsSatisfied(Pawn pawn)
+        {
             // handle health options
-            switch (pawnFilter.FilterHealthCondition) {
+            switch (pawnFilter.FilterHealthCondition)
+            {
                 case PawnFilter.HealthOptions.AllowAll:
                     break;
                 case PawnFilter.HealthOptions.OnlyStartCondition:
@@ -151,9 +300,14 @@ namespace RandomPlus
                         return false;
                     break;
             }
+            return true;
+        }
 
+        public static bool CheckWorkIsSatisfied(Pawn pawn)
+        {
             // handle work options
-            switch (pawnFilter.FilterIncapable) {
+            switch (pawnFilter.FilterIncapable)
+            {
                 case PawnFilter.IncapableOptions.AllowAll:
                     break;
                 case PawnFilter.IncapableOptions.NoDumbLabor:
@@ -165,23 +319,6 @@ namespace RandomPlus
                         return false;
                     break;
             }
-
-            if (pawnFilter.ageRange.min != PawnFilter.MinAgeDefault || 
-                pawnFilter.ageRange.max != PawnFilter.MaxAgeDefault)
-            {
-                if (pawnFilter.ageRange.min > pawn.ageTracker.AgeBiologicalYears || 
-                    (pawnFilter.ageRange.max != PawnFilter.MaxAgeDefault && pawnFilter.ageRange.max < pawn.ageTracker.AgeBiologicalYears))
-                    return false;
-            }
-
-            return true;
-        }
-
-        public static bool CheckGenderIsSatisfied(Pawn pawn)
-        {
-            if (pawnFilter.Gender != Gender.None && pawn.gender != Gender.None)
-                if (pawnFilter.Gender != pawn.gender)
-                    return false;
             return true;
         }
 

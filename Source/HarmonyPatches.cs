@@ -34,12 +34,6 @@ namespace RandomPlus
     [HarmonyPatch(typeof(Page_ConfigureStartingPawns), "RandomizeCurPawn")]
     class Patch_RandomizeMethod
     {
-        static FieldInfo curPawnFieldInfo;
-        static MethodInfo randomAgeMethodInfo;
-        static MethodInfo randomTraitMethodInfo;
-        static MethodInfo randomSkillMethodInfo;
-        static MethodInfo randomHealthMethodInfo;
-
         static bool rerolling;
 
         [HarmonyPrefix]
@@ -88,13 +82,13 @@ namespace RandomPlus
 
             if (startIndex != -1)
             {
-                var randomLimitRerollMethodInfo = typeof(RandomSettings)
-                    .GetMethod("RandomRerollLimit", BindingFlags.Public | BindingFlags.Static);
+                //var randomLimitRerollMethodInfo = typeof(RandomSettings)
+                //    .GetMethod("RandomRerollLimit", BindingFlags.Public | BindingFlags.Static);
 
-                var CheckPawnIsSatisfiedMethodInfo = typeof(RandomSettings)
-                    .GetMethod("CheckPawnIsSatisfied", BindingFlags.Public | BindingFlags.Static);
+                //var CheckPawnIsSatisfiedMethodInfo = typeof(RandomSettings)
+                //    .GetMethod("CheckPawnIsSatisfied", BindingFlags.Public | BindingFlags.Static);
 
-                var RerollMethodInfo = typeof(Patch_RandomizeMethod)
+                var RerollMethodInfo = typeof(RandomSettings)
                     .GetMethod("Reroll", BindingFlags.Public | BindingFlags.Static);
 
                 var startLoopLocation = codes[startIndex + 16].operand;
@@ -109,82 +103,6 @@ namespace RandomPlus
             }
 
             return codes;
-        }
-
-        public static bool Reroll(Pawn pawn)
-        {
-            if (RandomSettings.PawnFilter.RerollAlgorithm == PawnFilter.RerollAlgorithmOptions.Normal
-                || RandomSettings.randomRerollCounter == 0)
-            {
-                return RandomSettings.CheckPawnIsSatisfied(pawn);
-            }
-
-            if (curPawnFieldInfo == null)
-                curPawnFieldInfo = typeof(Page_ConfigureStartingPawns)
-                .GetField("curPawn", BindingFlags.NonPublic | BindingFlags.Instance);
-
-            if (randomAgeMethodInfo == null)
-                randomAgeMethodInfo = typeof(PawnGenerator)
-                    .GetMethod("GenerateRandomAge", BindingFlags.NonPublic | BindingFlags.Static);
-
-            if (randomTraitMethodInfo == null)
-                randomTraitMethodInfo = typeof(PawnGenerator)
-                    .GetMethod("GenerateTraits", BindingFlags.NonPublic | BindingFlags.Static);
-
-            if(randomSkillMethodInfo == null)
-                randomSkillMethodInfo = typeof(PawnGenerator)
-                    .GetMethod("GenerateSkills", BindingFlags.NonPublic | BindingFlags.Static);
-
-            if(randomHealthMethodInfo == null)
-                randomHealthMethodInfo = typeof(PawnGenerator)
-                    .GetMethod("GenerateInitialHediffs", BindingFlags.NonPublic | BindingFlags.Static);
-
-            PawnGenerationRequest request = new PawnGenerationRequest(
-                    Faction.OfPlayer.def.basicMemberKind,
-                    Faction.OfPlayer,
-                    PawnGenerationContext.PlayerStarter,
-                    forceGenerateNewPawn: true,
-                    mustBeCapableOfViolence: TutorSystem.TutorialMode,
-                    colonistRelationChanceFactor: 20f);
-
-            if (!RandomSettings.CheckGenderIsSatisfied(pawn))
-                return false;
-
-            while (RandomSettings.randomRerollCounter <= RandomSettings.PawnFilter.RerollLimit)
-            {
-                pawn.ageTracker = new Pawn_AgeTracker(pawn);
-                pawn.story.traits = new TraitSet(pawn);
-                pawn.skills = new Pawn_SkillTracker(pawn);
-
-                randomAgeMethodInfo.Invoke(null, new object[] { pawn, request });
-                PawnBioAndNameGenerator.GiveAppropriateBioAndNameTo(pawn, pawn.story.birthLastName, request.Faction.def, request.ForceNoBackstory);
-                randomTraitMethodInfo.Invoke(null, new object[] { pawn, request });
-                randomSkillMethodInfo.Invoke(null, new object[] { pawn });
-
-                for (int i = 0; i < 100; i++)
-                {
-                    pawn.health = new Pawn_HealthTracker(pawn);
-                    try
-                    {
-                        randomHealthMethodInfo.Invoke(null, new object[] { pawn, request });
-                        if (!(pawn.Dead || pawn.Destroyed || pawn.Downed))
-                            break;
-                    }
-                    catch (Exception)
-                    {
-                        Find.WorldPawns.RemoveAndDiscardPawnViaGC(pawn);
-                        return false;
-                    }
-                }
-
-                pawn.workSettings.EnableAndInitialize();
-
-                //RandomSettings.randomRerollCounter++;
-
-                if (RandomSettings.CheckPawnIsSatisfied(pawn))
-                    return true;
-            }
-            return false;
         }
     }
 
