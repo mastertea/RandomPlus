@@ -50,3 +50,7 @@ Updated UI
 
 2021/7/25 -
 -Added a new reroll agorithm option
+
+2021/7/29 -
+-Manually invoke garbage collection after rerolling (may help with memory problems)
+

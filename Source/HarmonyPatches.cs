@@ -50,6 +50,7 @@ namespace RandomPlus
         [HarmonyPostfix]
         static void Postfix()
         {
+            GC.Collect();
             rerolling = false;
         }
 
