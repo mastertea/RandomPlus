@@ -10,6 +10,9 @@ namespace RandomPlus
         public static readonly int PassionMinDefault = 0;
         public static readonly int PassionMaxDefault = DefDatabase<SkillDef>.AllDefs.ToArray().Length;
 
+        public static readonly int SkillMinDefault = 0;
+        public static readonly int SkillMaxDefault = DefDatabase<SkillDef>.AllDefs.ToArray().Length * 8;
+
         public static readonly int MinAgeDefault = 0;
         public static readonly int MaxAgeDefault = 120;
 
@@ -88,6 +91,7 @@ namespace RandomPlus
         public int RequiredTraitsInPool { get => _RequiredTraitsInPool; set => _RequiredTraitsInPool = value; }
 
         public IntRange passionRange;
+        public IntRange skillRange;
 
         public IntRange ageRange;
 
@@ -159,6 +163,7 @@ namespace RandomPlus
                 skills.Add(new SkillContainer(skilldef, OnChange));
             }
             passionRange = new IntRange(PassionMinDefault, PassionMaxDefault);
+            skillRange = new IntRange(SkillMinDefault, SkillMaxDefault);
             OnChange();
         }
 
@@ -204,6 +209,9 @@ namespace RandomPlus
 
             Scribe_Values.Look(ref passionRange.min, "passionRangeMin", PassionMinDefault);
             Scribe_Values.Look(ref passionRange.max, "passionRangeMax", PassionMaxDefault);
+
+            Scribe_Values.Look(ref skillRange.min, "skillRangeMin", SkillMinDefault);
+            Scribe_Values.Look(ref skillRange.max, "skillRangeMax", SkillMaxDefault);
 
             Scribe_Values.Look(ref ageRange.min, "ageRangeMin", MinAgeDefault);
             Scribe_Values.Look(ref ageRange.max, "ageRangeMax", MaxAgeDefault);

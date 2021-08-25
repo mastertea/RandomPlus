@@ -13,7 +13,7 @@ namespace RandomPlus
 
         public PanelSkills()
         {
-            Resize(new Rect(0, 40, 320, 426));
+            Resize(new Rect(0, 40, 320, 446));
         }
 
         public override string PanelHeader
@@ -39,6 +39,9 @@ namespace RandomPlus
         //protected static Rect totalSkillsRangeRect;
         protected static Rect totalPassionLabelRect;
         protected static Rect totalPassionRangeRect;
+
+        protected static Rect totalSkillLabelRect;
+        protected static Rect totalSkillRangeRect;
 
         public override void Resize(Rect rect)
         {
@@ -86,10 +89,11 @@ namespace RandomPlus
                 availableContentWidth, BodyRect.height - panelPaddingTop - panelPaddingBottom);
             RectScrollView = new Rect(0, 0, RectScrollFrame.width, RectScrollFrame.height - 60);
 
-            //totalSkillsLabelRect = new Rect(0, 314, RectScrollFrame.width - 8, 30);
-            //totalSkillsRangeRect = totalSkillsLabelRect.OffsetBy(0, 8);
             totalPassionLabelRect = new Rect(0, 318, RectScrollFrame.width - 8, 30);
             totalPassionRangeRect = totalPassionLabelRect.OffsetBy(0, 8);
+
+            totalSkillLabelRect = totalPassionLabelRect.OffsetBy(0, 40);
+            totalSkillRangeRect = totalSkillLabelRect.OffsetBy(0, 8);
         }
 
         protected override void DrawPanelContent()
@@ -227,22 +231,22 @@ namespace RandomPlus
             finally
             {
                 GUI.color = Color.white;
-                //string labelText = string.Format("Total Skills: {0} - {1}",
-                //    RandomSettings.PawnFilter.AgeRange.min,
-                //    RandomSettings.PawnFilter.AgeRange.max);
-                //Widgets.Label(totalSkillsLabelRect, labelText);
-                //Widgets.IntRange(totalSkillsRangeRect, 20, ref RandomSettings.PawnFilter.AgeRange,
-                //    0, //PawnFilter.MinAgeDefault, 
-                //    PawnFilter.MaxAgeDefault,
-                //    "", 2);
-
                 string labelText = string.Format("RandomPlus.PanelSkills.PassionSlider".Translate(),
                     RandomSettings.PawnFilter.passionRange.min,
                     RandomSettings.PawnFilter.passionRange.max);
                 Widgets.Label(totalPassionLabelRect, labelText);
                 Widgets.IntRange(totalPassionRangeRect, 2042, ref RandomSettings.PawnFilter.passionRange,
-                    0, //PawnFilter.MinAgeDefault, 
-                    DefDatabase<SkillDef>.AllDefs.ToArray().Length,
+                    0,
+                    PawnFilter.PassionMaxDefault,
+                    "", 2);
+
+                string skillRangeLabelText = string.Format("RandomPlus.PanelSkills.SkillSlider".Translate(),
+                    RandomSettings.PawnFilter.skillRange.min,
+                    RandomSettings.PawnFilter.skillRange.max);
+                Widgets.Label(totalSkillLabelRect, skillRangeLabelText);
+                Widgets.IntRange(totalSkillRangeRect, 2043, ref RandomSettings.PawnFilter.skillRange,
+                    0,
+                    PawnFilter.SkillMaxDefault,
                     "", 2);
 
                 GUI.EndGroup();

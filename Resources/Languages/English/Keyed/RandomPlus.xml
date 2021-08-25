@@ -13,7 +13,8 @@
   <RandomPlus.RerollLabel>Rerolls: </RandomPlus.RerollLabel>
   
 	<RandomPlus.PanelSkills.Header>Minimum Skill Level</RandomPlus.PanelSkills.Header>
-	<RandomPlus.PanelSkills.PassionSlider>Passion: {0} - {1}</RandomPlus.PanelSkills.PassionSlider>
+	<RandomPlus.PanelSkills.PassionSlider>Passion Range: {0} - {1}</RandomPlus.PanelSkills.PassionSlider>
+	<RandomPlus.PanelSkills.SkillSlider>Skill Range: {0} - {1}</RandomPlus.PanelSkills.SkillSlider>
 	
 	<RandomPlus.PanelTraits.Header>Filter Traits</RandomPlus.PanelTraits.Header>
   <RandomPlus.PanelTraits.NoTraits>No Traits</RandomPlus.PanelTraits.NoTraits>

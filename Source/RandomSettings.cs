@@ -10,6 +10,8 @@ namespace RandomPlus
 {
     public class RandomSettings
     {
+        public static int MinSkillRange;
+
         public static int randomRerollCounter = 0;
 
         public static List<PawnFilter> pawnFilterList = new List<PawnFilter>();
@@ -194,6 +196,7 @@ namespace RandomPlus
         public static bool CheckSkillsIsSatisfied(Pawn pawn)
         {
             List<SkillRecord> skillList = pawn.skills.skills;
+            
             foreach (var skillFilter in pawnFilter.Skills)
             {
                 if (skillFilter.Passion != Passion.None ||
@@ -225,6 +228,19 @@ namespace RandomPlus
                 {
                     return false;
                 }
+            }
+
+            // handle total skill range
+            if (pawnFilter.skillRange.min != PawnFilter.SkillMinDefault ||
+                pawnFilter.skillRange.max != PawnFilter.SkillMaxDefault)
+            {
+                int skillTotalCounter = 0;
+                foreach (var skill in skillList)
+                    skillTotalCounter += skill.Level;
+                
+                if (pawnFilter.skillRange.min > skillTotalCounter ||
+                pawnFilter.skillRange.max < skillTotalCounter)
+                    return false;
             }
 
             return true;

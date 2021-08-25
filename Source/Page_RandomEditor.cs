@@ -29,7 +29,7 @@ namespace RandomPlus
         {
             get
             {
-                return new Vector2(694, 40 + 362 + 150);
+                return new Vector2(694, 40 + 382 + 150);
             }
         }
 
@@ -48,8 +48,8 @@ namespace RandomPlus
             panelTraits = new PanelTraits();
             panelOthers = new PanelOthers();
 
-            RectButtonResetAll = new Rect(InitialSize.x - (ButtonWidth + 50), InitialSize.y - (ButtonHeight + 520), ButtonWidth, ButtonHeight);
-            RectButtonSaveLoad = new Rect(InitialSize.x - (ButtonWidth * 2 + 60), InitialSize.y - (ButtonHeight + 520), ButtonWidth, ButtonHeight);
+            RectButtonResetAll = new Rect(InitialSize.x - (ButtonWidth + 50), InitialSize.y - (ButtonHeight + 540), ButtonWidth, ButtonHeight);
+            RectButtonSaveLoad = new Rect(InitialSize.x - (ButtonWidth * 2 + 60), InitialSize.y - (ButtonHeight + 540), ButtonWidth, ButtonHeight);
         }
 
         public override void DoWindowContents(Rect inRect)
