@@ -12,7 +12,7 @@ namespace RandomPlus
 
         public PanelOthers()
         {
-            Resize(new Rect(340, 240, 320, 246));
+            Resize(new Rect(340, 240, 320, 226));
         }
 
         public override string PanelHeader

@@ -15,9 +15,11 @@
 	<RandomPlus.PanelSkills.Header>Minimum Skill Level</RandomPlus.PanelSkills.Header>
 	<RandomPlus.PanelSkills.PassionSlider>Passion Range: {0} - {1}</RandomPlus.PanelSkills.PassionSlider>
 	<RandomPlus.PanelSkills.SkillSlider>Skill Range: {0} - {1}</RandomPlus.PanelSkills.SkillSlider>
+	<RandomPlus.PanelSkills.CountOnlyHighestAttack>Count Only Highest Attack:</RandomPlus.PanelSkills.CountOnlyHighestAttack>
+	<RandomPlus.PanelSkills.CountOnlyPassion>Count Only Skills With Passion:</RandomPlus.PanelSkills.CountOnlyPassion>
 	
 	<RandomPlus.PanelTraits.Header>Filter Traits</RandomPlus.PanelTraits.Header>
-  <RandomPlus.PanelTraits.NoTraits>No Traits</RandomPlus.PanelTraits.NoTraits>
+	<RandomPlus.PanelTraits.NoTraits>No Traits</RandomPlus.PanelTraits.NoTraits>
 	<RandomPlus.PanelTraits.AddDialog.AddButton>Add</RandomPlus.PanelTraits.AddDialog.AddButton>
 	<RandomPlus.PanelTraits.PoolLabel>Required Traits In Pool: </RandomPlus.PanelTraits.PoolLabel>
 	<RandomPlus.PanelTraits.FilterType.Required> (Req)</RandomPlus.PanelTraits.FilterType.Required>
@@ -28,7 +30,7 @@
 	
 	<RandomPlus.PanelOthers.RerollAlgorithmLabel>Reroll Algorithm:</RandomPlus.PanelOthers.RerollAlgorithmLabel>
 	<RandomPlus.PanelOthers.RerollAlgorithmOptionValues.Normal>Normal</RandomPlus.PanelOthers.RerollAlgorithmOptionValues.Normal>
-	<RandomPlus.PanelOthers.RerollAlgorithmOptionValues.Fast>Fast (Experimental)</RandomPlus.PanelOthers.RerollAlgorithmOptionValues.Fast>
+	<RandomPlus.PanelOthers.RerollAlgorithmOptionValues.Fast>Fast (Beta)</RandomPlus.PanelOthers.RerollAlgorithmOptionValues.Fast>
 	
 	<RandomPlus.PanelOthers.RerollLimitLabel>Reroll Limit:</RandomPlus.PanelOthers.RerollLimitLabel>
 	<RandomPlus.PanelOthers.GenderLabel>Gender Filter:</RandomPlus.PanelOthers.GenderLabel>

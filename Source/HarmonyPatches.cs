@@ -307,14 +307,19 @@ namespace RandomPlus
 
                     if (ModsConfig.IdeologyActive)
                     {
-                        var page_ideo = (Page_ConfigureIdeo)page_select_site.next;
-                        page_ideo.SelectOrMakeNewIdeo(Find.IdeoManager.IdeosInViewOrder.RandomElement());
+                        var page_ideo = (Page_ChooseIdeoPreset)page_select_site.next;
+                        var allIdeo = DefDatabase<IdeoPresetDef>.AllDefs;
+                        var page_ideo_select_field = typeof(Page_ChooseIdeoPreset).GetField("selectedIdeo", BindingFlags.NonPublic | BindingFlags.Instance);
+                        page_ideo_select_field.SetValue(page_ideo, allIdeo.RandomElement());
 
-                        var page_ideo_methodInfo0 = typeof(Page_ConfigureIdeo).GetMethod("CanDoNext", BindingFlags.NonPublic | BindingFlags.Instance);
+                        var page_ideo_methodInfo0 = typeof(Page_ChooseIdeoPreset).GetMethod("CanDoNext", BindingFlags.NonPublic | BindingFlags.Instance);
                         page_ideo_methodInfo0.Invoke(page_ideo, new object[0]);
-                        var page_ideo_methodInfo1 = typeof(Page_ConfigureIdeo).GetMethod("DoNext", BindingFlags.NonPublic | BindingFlags.Instance);
+                        var page_ideo_methodInfo1 = typeof(Page_ChooseIdeoPreset).GetMethod("DoNext", BindingFlags.NonPublic | BindingFlags.Instance);
                         page_ideo_methodInfo1.Invoke(page_ideo, new object[0]);
                     }
+
+                    var page = new Page_RandomEditor();
+                    Find.WindowStack.Add(page);
                 });
             }, "wait", true, null, false);
 

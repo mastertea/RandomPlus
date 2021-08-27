@@ -13,7 +13,7 @@ namespace RandomPlus
 
         public PanelSkills()
         {
-            Resize(new Rect(0, 40, 320, 446));
+            Resize(new Rect(0, 40, 320, 500));
         }
 
         public override string PanelHeader
@@ -42,6 +42,9 @@ namespace RandomPlus
 
         protected static Rect totalSkillLabelRect;
         protected static Rect totalSkillRangeRect;
+
+        protected static Rect optionCountOnlyHighestAttackBoxRect;
+        protected static Rect optionCountOnlyPassionBoxRect;
 
         public override void Resize(Rect rect)
         {
@@ -90,10 +93,15 @@ namespace RandomPlus
             RectScrollView = new Rect(0, 0, RectScrollFrame.width, RectScrollFrame.height - 60);
 
             totalPassionLabelRect = new Rect(0, 318, RectScrollFrame.width - 8, 30);
-            totalPassionRangeRect = totalPassionLabelRect.OffsetBy(0, 8);
+            totalPassionRangeRect = totalPassionLabelRect.OffsetBy(0, 18);
 
-            totalSkillLabelRect = totalPassionLabelRect.OffsetBy(0, 40);
-            totalSkillRangeRect = totalSkillLabelRect.OffsetBy(0, 8);
+            totalSkillLabelRect = totalPassionLabelRect.OffsetBy(0, 48);
+            optionCountOnlyHighestAttackBoxRect = totalSkillLabelRect.OffsetBy(10, 16);
+            optionCountOnlyHighestAttackBoxRect.width -= 10;
+            optionCountOnlyPassionBoxRect = optionCountOnlyHighestAttackBoxRect.OffsetBy(0, 24);
+            totalSkillRangeRect = totalSkillLabelRect.OffsetBy(0, 62);
+            totalPassionRangeRect.height = 18;
+            totalSkillRangeRect.height = 18;
         }
 
         protected override void DrawPanelContent()
@@ -242,12 +250,20 @@ namespace RandomPlus
 
                 string skillRangeLabelText = string.Format("RandomPlus.PanelSkills.SkillSlider".Translate(),
                     RandomSettings.PawnFilter.skillRange.min,
-                    RandomSettings.PawnFilter.skillRange.max);
+                    RandomSettings.PawnFilter.skillRange.max == PawnFilter.SkillMaxDefault ? "∞" : RandomSettings.PawnFilter.skillRange.max.ToString());
                 Widgets.Label(totalSkillLabelRect, skillRangeLabelText);
                 Widgets.IntRange(totalSkillRangeRect, 2043, ref RandomSettings.PawnFilter.skillRange,
                     0,
                     PawnFilter.SkillMaxDefault,
                     "", 2);
+
+                Widgets.CheckboxLabeled(optionCountOnlyHighestAttackBoxRect,
+                    "*"+"RandomPlus.PanelSkills.CountOnlyHighestAttack".Translate(),
+                    ref RandomSettings.PawnFilter.countOnlyHighestAttack);
+
+                Widgets.CheckboxLabeled(optionCountOnlyPassionBoxRect, 
+                    "*"+"RandomPlus.PanelSkills.CountOnlyPassion".Translate(), 
+                    ref RandomSettings.PawnFilter.countOnlyPassion);
 
                 GUI.EndGroup();
             }
@@ -311,43 +327,6 @@ namespace RandomPlus
             GUI.color = Color.white;
             Text.Anchor = TextAnchor.UpperLeft;
         }
-
-        // EdB: Copy of private static SkillUI.GetSkillDescription().
-        //private static string GetSkillDescription(SkillRecord sk)
-        //{
-        //    StringBuilder stringBuilder = new StringBuilder();
-        //    if (sk.TotallyDisabled)
-        //    {
-        //        stringBuilder.Append("DisabledLower".Translate().CapitalizeFirst());
-        //    }
-        //    else
-        //    {
-        //        stringBuilder.AppendLine(string.Concat(new object[] {
-        //                    "Level".Translate(),
-        //                    " ",
-        //                    sk.Level,
-        //                    ": ",
-        //                    sk.LevelDescriptor
-        //                }));
-        //        stringBuilder.Append("Passion".Translate() + ": ");
-        //        switch (sk.passion)
-        //        {
-        //            case Passion.None:
-        //                stringBuilder.Append("PassionNone".Translate("0.3"));
-        //                break;
-        //            case Passion.Minor:
-        //                stringBuilder.Append("PassionMinor".Translate("1.0"));
-        //                break;
-        //            case Passion.Major:
-        //                stringBuilder.Append("PassionMajor".Translate("1.5"));
-        //                break;
-        //        }
-        //    }
-        //    stringBuilder.AppendLine();
-        //    stringBuilder.AppendLine();
-        //    stringBuilder.Append(sk.def.description);
-        //    return stringBuilder.ToString();
-        //}
 
         protected void IncreasePassion(SkillContainer filter)
         {

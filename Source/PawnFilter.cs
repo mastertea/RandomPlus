@@ -22,7 +22,7 @@ namespace RandomPlus
             "RandomPlus.PanelOthers.RerollAlgorithmOptionValues.Normal",
             "RandomPlus.PanelOthers.RerollAlgorithmOptionValues.Fast", 
         };
-        public static readonly RerollAlgorithmOptions DefaultRerollAlgorithm = RerollAlgorithmOptions.Normal;
+        public static readonly RerollAlgorithmOptions DefaultRerollAlgorithm = RerollAlgorithmOptions.Fast;
 
         public enum RerollLimitOptions { N100 = 100, N250 = 250, N500 = 500, N1000 = 1000, N2500 = 2500, N5000 = 5000, N10000 = 10000, N50000 = 50000 }
         public readonly static string[] RerollLimitOptionValues = new string[] { "100", "250", "500", "1000", "2500", "5000", "10000", "50000" };
@@ -92,6 +92,8 @@ namespace RandomPlus
 
         public IntRange passionRange;
         public IntRange skillRange;
+        public bool countOnlyHighestAttack;
+        public bool countOnlyPassion;
 
         public IntRange ageRange;
 
@@ -164,6 +166,8 @@ namespace RandomPlus
             }
             passionRange = new IntRange(PassionMinDefault, PassionMaxDefault);
             skillRange = new IntRange(SkillMinDefault, SkillMaxDefault);
+            countOnlyHighestAttack = false;
+            countOnlyPassion = false;
             OnChange();
         }
 
@@ -176,6 +180,7 @@ namespace RandomPlus
 
         public void ResetOther()
         {
+            RerollAlgorithm = DefaultRerollAlgorithm;
             gender = Gender.None;
             rerollLimit = (int)DefaultRerollLimit;
             filterHealthCondition = HealthOptions.AllowAll;
@@ -212,6 +217,9 @@ namespace RandomPlus
 
             Scribe_Values.Look(ref skillRange.min, "skillRangeMin", SkillMinDefault);
             Scribe_Values.Look(ref skillRange.max, "skillRangeMax", SkillMaxDefault);
+
+            Scribe_Values.Look(ref countOnlyHighestAttack, "countOnlyHighestAttack", false);
+            Scribe_Values.Look(ref countOnlyPassion, "countOnlyPassion", false);
 
             Scribe_Values.Look(ref ageRange.min, "ageRangeMin", MinAgeDefault);
             Scribe_Values.Look(ref ageRange.max, "ageRangeMax", MaxAgeDefault);

@@ -235,8 +235,29 @@ namespace RandomPlus
                 pawnFilter.skillRange.max != PawnFilter.SkillMaxDefault)
             {
                 int skillTotalCounter = 0;
-                foreach (var skill in skillList)
-                    skillTotalCounter += skill.Level;
+                for (int i=0; i<skillList.Count;i++)
+                {
+                    var skill = skillList[i];
+                    if (PawnFilter.countOnlyHighestAttack)
+                    {
+                        if (i == 0) // Shooting[i=0] Melee[i=1]
+                        {
+                            var meleeSkill = skillList[1];
+                            skillTotalCounter += meleeSkill.Level > skill.Level ? meleeSkill.Level : skill.Level;
+                            i = 1; // skip next loop (melee)
+                            continue;
+                        }
+                    }
+                    if (PawnFilter.countOnlyPassion)
+                    {
+                        if(skill.passion > 0)
+                            skillTotalCounter += skill.Level;
+                    }
+                    else
+                    {
+                        skillTotalCounter += skill.Level;
+                    }
+                }
                 
                 if (pawnFilter.skillRange.min > skillTotalCounter ||
                 pawnFilter.skillRange.max < skillTotalCounter)
