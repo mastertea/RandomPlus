@@ -25,6 +25,7 @@
 	<RandomPlus.PanelTraits.FilterType.Required> (Req)</RandomPlus.PanelTraits.FilterType.Required>
 	<RandomPlus.PanelTraits.FilterType.Pool> (Pool)</RandomPlus.PanelTraits.FilterType.Pool>
 	<RandomPlus.PanelTraits.FilterType.Excluded> (Excl)</RandomPlus.PanelTraits.FilterType.Excluded>
+	<RandomPlus.PanelTraits.Disabled>(Disabled)</RandomPlus.PanelTraits.Disabled>
 	
 	<RandomPlus.PanelOthers.Header>Other Options</RandomPlus.PanelOthers.Header>
 	

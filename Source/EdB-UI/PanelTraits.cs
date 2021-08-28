@@ -28,6 +28,8 @@ namespace RandomPlus
         protected Rect traitPoolLabelRect;
         protected Rect traitPoolButtonRect;
 
+        protected Rect disabledLabelRect;
+
         public PanelTraits()
         {
             Resize(new Rect(340, 40, 320, 180));
@@ -56,12 +58,20 @@ namespace RandomPlus
 
             traitPoolLabelRect = new Rect(8, RectScrollView.y + RectScrollView.height, 200, 30);
             traitPoolButtonRect = new Rect(190, RectScrollView.y + RectScrollView.height + 1, 104, 20);
+
+            disabledLabelRect = new Rect(20, 30, 100, 20);
         }
 
         protected override void DrawPanelContent()
         {
             base.DrawPanelContent();
 
+            if (Page_RandomEditor.MOD_WELL_MET)
+            {
+                Widgets.Label(disabledLabelRect, "RandomPlus.PanelTraits.Disabled".Translate());
+                return;
+            }
+                
             float cursor = 0;
             GUI.color = Color.white;
             GUI.BeginGroup(RectScrollFrame);

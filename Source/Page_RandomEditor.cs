@@ -6,6 +6,8 @@ namespace RandomPlus
 {
     public class Page_RandomEditor : Page
     {
+        public static bool MOD_WELL_MET = false;
+
         PanelSkills panelSkills;
         PanelTraits panelTraits;
         PanelOthers panelOthers;
@@ -44,6 +46,9 @@ namespace RandomPlus
         public override void PreOpen()
         {
             base.PreOpen();
+            if (ModsConfig.IsActive("Lakuna.WellMet"))
+                MOD_WELL_MET = true;
+
             panelSkills = new PanelSkills();
             panelTraits = new PanelTraits();
             panelOthers = new PanelOthers();

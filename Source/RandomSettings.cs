@@ -269,6 +269,9 @@ namespace RandomPlus
 
         public static bool CheckTraitsIsSatisfied(Pawn pawn)
         {
+            if (Page_RandomEditor.MOD_WELL_MET)
+                return true;
+
             // handle required and exclude traits
             var traitFilterList = pawnFilter.Traits;
             foreach (var traitContainer in traitFilterList)
