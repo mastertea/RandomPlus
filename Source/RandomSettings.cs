@@ -10,6 +10,13 @@ namespace RandomPlus
 {
     public class RandomSettings
     {
+        static FieldInfo curPawnFieldInfo;
+        static MethodInfo randomAgeMethodInfo;
+        static MethodInfo randomTraitMethodInfo;
+        static MethodInfo randomSkillMethodInfo;
+        static MethodInfo randomHealthMethodInfo;
+        static MethodInfo randomBodyTypeMethodInfo;
+
         public static int MinSkillRange;
 
         public static int randomRerollCounter = 0;
@@ -28,19 +35,27 @@ namespace RandomPlus
             return randomRerollCounter;
         }
 
-        //public static void SetRandomRerollLimit(int limit)
-        //{
-        //    pawnFilter.RerollLimit = limit;
-        //}
-
-        //public static int RandomRerollLimit()
-        //{
-        //    return pawnFilter.randomRerollLimit;
-        //}
-
         public static void Init()
         {
             pawnFilter = new PawnFilter();
+
+            curPawnFieldInfo = typeof(Page_ConfigureStartingPawns)
+            .GetField("curPawn", BindingFlags.NonPublic | BindingFlags.Instance);
+
+            randomAgeMethodInfo = typeof(PawnGenerator)
+                .GetMethod("GenerateRandomAge", BindingFlags.NonPublic | BindingFlags.Static);
+
+            randomTraitMethodInfo = typeof(PawnGenerator)
+                .GetMethod("GenerateTraits", BindingFlags.NonPublic | BindingFlags.Static);
+
+            randomSkillMethodInfo = typeof(PawnGenerator)
+                .GetMethod("GenerateSkills", BindingFlags.NonPublic | BindingFlags.Static);
+
+            randomHealthMethodInfo = typeof(PawnGenerator)
+                .GetMethod("GenerateInitialHediffs", BindingFlags.NonPublic | BindingFlags.Static);
+
+            randomBodyTypeMethodInfo = typeof(PawnGenerator)
+                .GetMethod("GenerateBodyType", BindingFlags.NonPublic | BindingFlags.Static);
         }
 
         public static void ResetRerollCounter()
@@ -48,11 +63,6 @@ namespace RandomPlus
             randomRerollCounter = 0;
         }
 
-        static FieldInfo curPawnFieldInfo;
-        static MethodInfo randomAgeMethodInfo;
-        static MethodInfo randomTraitMethodInfo;
-        static MethodInfo randomSkillMethodInfo;
-        static MethodInfo randomHealthMethodInfo;
         public static bool Reroll(Pawn pawn)
         {
             if (PawnFilter.RerollAlgorithm == PawnFilter.RerollAlgorithmOptions.Normal
@@ -60,26 +70,6 @@ namespace RandomPlus
             {
                 return CheckPawnIsSatisfied(pawn);
             }
-
-            if (curPawnFieldInfo == null)
-                curPawnFieldInfo = typeof(Page_ConfigureStartingPawns)
-                .GetField("curPawn", BindingFlags.NonPublic | BindingFlags.Instance);
-
-            if (randomAgeMethodInfo == null)
-                randomAgeMethodInfo = typeof(PawnGenerator)
-                    .GetMethod("GenerateRandomAge", BindingFlags.NonPublic | BindingFlags.Static);
-
-            if (randomTraitMethodInfo == null)
-                randomTraitMethodInfo = typeof(PawnGenerator)
-                    .GetMethod("GenerateTraits", BindingFlags.NonPublic | BindingFlags.Static);
-
-            if (randomSkillMethodInfo == null)
-                randomSkillMethodInfo = typeof(PawnGenerator)
-                    .GetMethod("GenerateSkills", BindingFlags.NonPublic | BindingFlags.Static);
-
-            if (randomHealthMethodInfo == null)
-                randomHealthMethodInfo = typeof(PawnGenerator)
-                    .GetMethod("GenerateInitialHediffs", BindingFlags.NonPublic | BindingFlags.Static);
 
             PawnGenerationRequest request = new PawnGenerationRequest(
                     Faction.OfPlayer.def.basicMemberKind,
@@ -131,8 +121,12 @@ namespace RandomPlus
                     continue;
 
                 pawn.workSettings.EnableAndInitialize();
-                if (!CheckWorkIsSatisfied(pawn))
+                if (!CheckWorkIsSatisfied(pawn))                 
                     continue;
+
+                // Generate Misc
+                randomBodyTypeMethodInfo.Invoke(null, new object[] { pawn, request });
+                GeneratePawnStyle(pawn);
 
                 return true;
             }
@@ -427,6 +421,25 @@ namespace RandomPlus
             if (traitDef.GetGenderSpecificCommonality(Gender.Male) == traitDef.GetGenderSpecificCommonality(Gender.Female))
                 return $"({pecentMale}%)";
             return $"(♂:{pecentMale}%,♀:{pecentFemale}%)";
+        }
+
+        public static void GeneratePawnStyle(Pawn pawn)
+        {
+            if (pawn.RaceProps.Humanlike)
+            {
+                pawn.story.hairDef = PawnStyleItemChooser.RandomHairFor(pawn);
+                if (pawn.style != null)
+                {
+                pawn.style.beardDef = pawn.gender == Gender.Male? PawnStyleItemChooser.ChooseStyleItem<BeardDef>(pawn) : BeardDefOf.NoBeard;
+                if (ModsConfig.IdeologyActive)
+                {
+                    pawn.style.FaceTattoo = PawnStyleItemChooser.ChooseStyleItem<TattooDef>(pawn, new TattooType? (TattooType.Face));
+                    pawn.style.BodyTattoo = PawnStyleItemChooser.ChooseStyleItem<TattooDef>(pawn, new TattooType? (TattooType.Body));
+                }
+                else
+                    pawn.style.SetupTattoos_NoIdeology();
+                }
+            }
         }
     }
 }
