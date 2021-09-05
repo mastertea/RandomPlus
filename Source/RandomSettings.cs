@@ -104,7 +104,7 @@ namespace RandomPlus
 
                 for (int i = 0; i < 100; i++)
                 {
-                    pawn.health = new Pawn_HealthTracker(pawn);
+                    pawn.health.Reset();
                     try
                     {
                         // internally, this method only adds custom Scenario health (as of rimworld v1.3)
@@ -112,7 +112,10 @@ namespace RandomPlus
 
                         randomHealthMethodInfo.Invoke(null, new object[] { pawn, request });
                         if (!(pawn.Dead || pawn.Destroyed || pawn.Downed))
-                            break;
+                        {
+                            //pawn.health.Reset();
+                            continue;
+                        }
                     }
                     catch (Exception)
                     {
@@ -130,11 +133,7 @@ namespace RandomPlus
                 // Handle custom scenario
                 Find.Scenario.Notify_PawnGenerated(pawn, request.Context, true);
                 if (!CheckPawnIsSatisfied(pawn))
-                {
-                    Log.Message("Test");
                     continue;
-                }
-                    
 
                 // Generate Misc
                 randomBodyTypeMethodInfo.Invoke(null, new object[] { pawn, request });
