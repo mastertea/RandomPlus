@@ -18,23 +18,35 @@ namespace RandomPlus
 
         public static readonly int DefaultPoolSize = 0;
         public enum RerollAlgorithmOptions { Normal, Fast }
-        public readonly static string[] RerollAlgorithmOptionValues = new string[] {
+        public readonly static string[] _RerollAlgorithmOptionValues = new string[] {
             "RandomPlus.PanelOthers.RerollAlgorithmOptionValues.Normal",
             "RandomPlus.PanelOthers.RerollAlgorithmOptionValues.Fast", 
         };
+        public static string[] RerollAlgorithmOptionValues { 
+            get {
+                if (ModsConfig.IsActive("erdelf.HumanoidAlienRaces"))
+                {
+                    return new string[] { "RandomPlus.PanelOthers.RerollAlgorithmOptionValues.Normal" };
+                }
+                return _RerollAlgorithmOptionValues;
+            } 
+        }
         public static readonly RerollAlgorithmOptions DefaultRerollAlgorithm = RerollAlgorithmOptions.Fast;
 
         public enum RerollLimitOptions { N100 = 100, N250 = 250, N500 = 500, N1000 = 1000, N2500 = 2500, N5000 = 5000, N10000 = 10000, N50000 = 50000 }
         public readonly static string[] RerollLimitOptionValues = new string[] { "100", "250", "500", "1000", "2500", "5000", "10000", "50000" };
         public static readonly RerollLimitOptions DefaultRerollLimit = RerollLimitOptions.N1000;
 
-        public enum HealthOptions { AllowAll, OnlyStartCondition, NoPain, NoAddiction, AllowNone }
+        public enum HealthOptions { AllowAll, OnlyStartCondition, NoPain, NoAddiction, AllowNone, 
+            //OnlyPositiveImplants, 
+        }
         public readonly static string[] HealthOptionValues = new string[] {
             "RandomPlus.PanelOthers.HealthOptions.AllowAll",
             "RandomPlus.PanelOthers.HealthOptions.OnlyStartConditions",
             "RandomPlus.PanelOthers.HealthOptions.NoPain",
             "RandomPlus.PanelOthers.HealthOptions.NoAddiction",
-            "RandomPlus.PanelOthers.HealthOptions.AllowNone"
+            "RandomPlus.PanelOthers.HealthOptions.AllowNone",
+            //"RandomPlus.PanelOthers.HealthOptions.OnlyPositiveImplants",
         };
 
         public enum IncapableOptions { AllowAll, NoDumbLabor, AllowNone }

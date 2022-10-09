@@ -98,7 +98,7 @@ namespace RandomPlus
                 pawn.skills = new Pawn_SkillTracker(pawn);
                 PawnBioAndNameGenerator.GiveAppropriateBioAndNameTo(pawn, pawn.story.birthLastName, request.Faction.def, request.ForceNoBackstory);
                 randomTraitMethodInfo.Invoke(null, new object[] { pawn, request });
-                randomSkillMethodInfo.Invoke(null, new object[] { pawn });
+                randomSkillMethodInfo.Invoke(null, new object[] { pawn, request });
                 if (!CheckSkillsIsSatisfied(pawn) || !CheckTraitsIsSatisfied(pawn))
                     continue;
 
@@ -109,7 +109,6 @@ namespace RandomPlus
                     {
                         // internally, this method only adds custom Scenario health (as of rimworld v1.3)
                         Find.Scenario.Notify_NewPawnGenerating(pawn, request.Context);
-
                         randomHealthMethodInfo.Invoke(null, new object[] { pawn, request });
                         if (!(pawn.Dead || pawn.Destroyed || pawn.Downed))
                         {
@@ -134,7 +133,6 @@ namespace RandomPlus
                 Find.Scenario.Notify_PawnGenerated(pawn, request.Context, true);
                 if (!CheckPawnIsSatisfied(pawn))
                     continue;
-
                 // Generate Misc
                 randomBodyTypeMethodInfo.Invoke(null, new object[] { pawn, request });
                 GeneratePawnStyle(pawn);
@@ -344,6 +342,21 @@ namespace RandomPlus
                     if (pawn.health.hediffSet.hediffs.Count > 0)
                         return false;
                     break;
+//                case PawnFilter.HealthOptions.OnlyPositiveImplants:
+//                    var hediffs = pawn.health.hediffSet.hediffs;
+//                    Hediff onlyPositiveImplants = null;
+//                    for (int i = 0; i < hediffs.Count; i++)
+//                    {
+//                        var hediff = hediffs[i];
+//                        if (hediff is Hediff_Implant)
+//                        {
+//                            onlyPositiveImplants = hediff;
+//                            break;
+//                        }
+//;                    }
+//                    if (onlyPositiveImplants == null)
+//                        return false;
+//                    break;
             }
             return true;
         }
@@ -441,11 +454,11 @@ namespace RandomPlus
                 pawn.story.hairDef = PawnStyleItemChooser.RandomHairFor(pawn);
                 if (pawn.style != null)
                 {
-                pawn.style.beardDef = pawn.gender == Gender.Male? PawnStyleItemChooser.ChooseStyleItem<BeardDef>(pawn) : BeardDefOf.NoBeard;
+                pawn.style.beardDef = pawn.gender == Gender.Male? PawnStyleItemChooser.RandomBeardFor(pawn) : BeardDefOf.NoBeard;
                 if (ModsConfig.IdeologyActive)
                 {
-                    pawn.style.FaceTattoo = PawnStyleItemChooser.ChooseStyleItem<TattooDef>(pawn, new TattooType? (TattooType.Face));
-                    pawn.style.BodyTattoo = PawnStyleItemChooser.ChooseStyleItem<TattooDef>(pawn, new TattooType? (TattooType.Body));
+                    pawn.style.FaceTattoo = PawnStyleItemChooser.RandomTattooFor(pawn, TattooType.Face);
+                    pawn.style.BodyTattoo = PawnStyleItemChooser.RandomTattooFor(pawn, TattooType.Body);
                 }
                 else
                     pawn.style.SetupTattoos_NoIdeology();

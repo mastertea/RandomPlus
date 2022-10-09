@@ -42,6 +42,7 @@
 	<RandomPlus.PanelOthers.HealthOptions.NoPain>No Pain</RandomPlus.PanelOthers.HealthOptions.NoPain>
 	<RandomPlus.PanelOthers.HealthOptions.NoAddiction>No Addiction</RandomPlus.PanelOthers.HealthOptions.NoAddiction>
 	<RandomPlus.PanelOthers.HealthOptions.AllowNone>Allow None</RandomPlus.PanelOthers.HealthOptions.AllowNone>
+	<RandomPlus.PanelOthers.HealthOptions.OnlyPositiveImplants>Only Positive Implants</RandomPlus.PanelOthers.HealthOptions.OnlyPositiveImplants>
 	
 	<RandomPlus.PanelOthers.IncapableOptionLabel>Incapable:</RandomPlus.PanelOthers.IncapableOptionLabel>
 	<RandomPlus.PanelOthers.IncapableOptions.AllowAll>Allow All</RandomPlus.PanelOthers.IncapableOptions.AllowAll>

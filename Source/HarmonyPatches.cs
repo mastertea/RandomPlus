@@ -173,8 +173,8 @@ namespace RandomPlus
             var codes = new List<CodeInstruction>(instructions);
             for (int i = 0; i < codes.Count; i++)
             {
-                if (codes[i].opcode == OpCodes.Ldarg_2 &&
-                    codes[i + 1].opcode == OpCodes.Brfalse_S)
+                if (codes[i].opcode == OpCodes.Ldloc_1 &&
+                    codes[i + 1].opcode == OpCodes.Brfalse)
                 {
                     startIndex = i;
                     break;
@@ -193,7 +193,7 @@ namespace RandomPlus
 
         public static void InjectCustomUI()
         {
-            Rect editButtonRect = new Rect(620f, 0.0f, 50f, 30f);
+            Rect editButtonRect = new Rect(540f, 6f, 50f, 30f);
             if (ModsConfig.IsActive("hahkethomemah.simplepersonalities"))
                 editButtonRect.x -= 130; 
 
@@ -203,7 +203,7 @@ namespace RandomPlus
                 Find.WindowStack.Add(page);
             }
 
-            Rect rerollLabelRect = new Rect(620f, 40f, 200f, 30f);
+            Rect rerollLabelRect = new Rect(640f, 4f, 200f, 30f);
             if (ModsConfig.IdeologyActive)
                 rerollLabelRect.y += 40;
 
@@ -277,7 +277,7 @@ namespace RandomPlus
             methodInfo1.Invoke(page_select_scenario, new object[0]);
 
             var page_storyteller = (Page_SelectStoryteller)page_select_scenario.next;
-            
+
             var page_storyteller_methodInfo0 = typeof(Page_SelectStoryteller).GetMethod("CanDoNext", BindingFlags.NonPublic | BindingFlags.Instance);
             page_storyteller_methodInfo0.Invoke(page_storyteller, new object[0]);
             var page_storyteller_methodInfo1 = typeof(Page_SelectStoryteller).GetMethod("DoNext", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -293,7 +293,8 @@ namespace RandomPlus
 
             var page_select_site = (Page_SelectStartingSite)page_create_world.next;
 
-            LongEventHandler.QueueLongEvent(() => {
+            LongEventHandler.QueueLongEvent(() =>
+            {
                 while (Find.World == null) System.Threading.Thread.Sleep(100);
                 LongEventHandler.ExecuteWhenFinished(() =>
                 {
@@ -323,7 +324,7 @@ namespace RandomPlus
                 });
             }, "wait", true, null, false);
 
-            
+
         }
     }
 }

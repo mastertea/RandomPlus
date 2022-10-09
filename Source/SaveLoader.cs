@@ -77,6 +77,15 @@ namespace RandomPlus
             {
                 Scribe.loader.FinalizeLoading();
                 Scribe.mode = LoadSaveMode.Inactive;
+
+                // disable fast algorithm when HAR mod is enable
+                if (ModsConfig.IsActive("erdelf.HumanoidAlienRaces"))
+                {
+                    foreach (var filter in RandomSettings.pawnFilterList)
+                    {
+                        filter.RerollAlgorithm = PawnFilter.RerollAlgorithmOptions.Normal;
+                    }
+                }
             }
         }
 
