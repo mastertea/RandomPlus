@@ -102,7 +102,12 @@ namespace RandomPlus
         private readonly static Action<Enum> rerollAlgorithmCallback = (Enum val) => RandomSettings.PawnFilter.RerollAlgorithm = (PawnFilter.RerollAlgorithmOptions)val;
         public void drawRerollAlgorithm(Rect rect)
         {
-            drawButton(rect, PawnFilter.RerollAlgorithmOptionValues[(int)RandomSettings.PawnFilter.RerollAlgorithm], typeof(PawnFilter.RerollAlgorithmOptions), PawnFilter.RerollAlgorithmOptionValues, rerollAlgorithmCallback);
+            drawButton(
+                rect, 
+                PawnFilter.RerollAlgorithmOptionValues[(int)RandomSettings.PawnFilter.RerollAlgorithm], 
+                typeof(PawnFilter.RerollAlgorithmOptions), 
+                PawnFilter.RerollAlgorithmOptionValues, 
+                rerollAlgorithmCallback);
         }
 
         private readonly static Action<Enum> rerollLimitCallback = (Enum val) => RandomSettings.PawnFilter.RerollLimit = (int)(PawnFilter.RerollLimitOptions)val;
@@ -140,11 +145,14 @@ namespace RandomPlus
                 for (int i=0; i < enumOptions.Length; i++)
                 {
                     var option = enumOptions[i];
-                    var displayedName = (translate) ? displayedNameArray[i].Translate().CapitalizeFirst().ToString() : displayedNameArray[i].CapitalizeFirst();
-                    var menuOption = new FloatMenuOption(displayedName, () => {
-                        callback?.Invoke(option);
-                    });
-                    options.Add(menuOption);
+                    if (displayedNameArray.Length > i)
+                    {
+                        var displayedName = (translate) ? displayedNameArray[i].Translate().CapitalizeFirst().ToString() : displayedNameArray[i].CapitalizeFirst();
+                        var menuOption = new FloatMenuOption(displayedName, () => {
+                            callback?.Invoke(option);
+                        });
+                        options.Add(menuOption);
+                    }
                 }
                 Find.WindowStack.Add(new FloatMenu(options));
             }

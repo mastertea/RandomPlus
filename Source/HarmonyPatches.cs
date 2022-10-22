@@ -206,6 +206,8 @@ namespace RandomPlus
             Rect rerollLabelRect = new Rect(640f, 4f, 200f, 30f);
             if (ModsConfig.IdeologyActive)
                 rerollLabelRect.y += 40;
+            if (ModsConfig.BiotechActive)
+                rerollLabelRect.y += 60;
 
             string labelText = "RandomPlus.RerollLabel".Translate() + RandomSettings.RandomRerollCounter() + "/" + RandomSettings.PawnFilter.RerollLimit;
 

@@ -16,6 +16,7 @@ namespace RandomPlus
         static MethodInfo randomSkillMethodInfo;
         static MethodInfo randomHealthMethodInfo;
         static MethodInfo randomBodyTypeMethodInfo;
+        static MethodInfo randomGeneMethodInfo;
 
         public static int MinSkillRange;
 
@@ -56,6 +57,9 @@ namespace RandomPlus
 
             randomBodyTypeMethodInfo = typeof(PawnGenerator)
                 .GetMethod("GenerateBodyType", BindingFlags.NonPublic | BindingFlags.Static);
+
+            randomGeneMethodInfo = typeof(PawnGenerator)
+                .GetMethod("GenerateGenes", BindingFlags.NonPublic | BindingFlags.Static);
         }
 
         public static void ResetRerollCounter()
@@ -71,13 +75,27 @@ namespace RandomPlus
                 return CheckPawnIsSatisfied(pawn);
             }
 
-            PawnGenerationRequest request = new PawnGenerationRequest(
-                    Faction.OfPlayer.def.basicMemberKind,
-                    Faction.OfPlayer,
-                    PawnGenerationContext.PlayerStarter,
-                    forceGenerateNewPawn: true,
-                    mustBeCapableOfViolence: TutorSystem.TutorialMode,
-                    colonistRelationChanceFactor: 20f);
+            //PawnGenerationRequest request = new PawnGenerationRequest(
+            //        Faction.OfPlayer.def.basicMemberKind,
+            //        Faction.OfPlayer,
+            //        PawnGenerationContext.PlayerStarter,
+
+            //        forceGenerateNewPawn: true,
+            //        mustBeCapableOfViolence: TutorSystem.TutorialMode,
+            //        colonistRelationChanceFactor: 20f);
+
+            //PawnGenerationRequest request = new PawnGenerationRequest(
+            //    Find.GameInitData.startingPawnKind ?? Faction.OfPlayer.def.basicMemberKind, 
+            //    Faction.OfPlayer, 
+            //    PawnGenerationContext.PlayerStarter, 
+            //    forceGenerateNewPawn: true, 
+            //    mustBeCapableOfViolence: TutorSystem.TutorialMode, 
+            //    colonistRelationChanceFactor: 20f, allowPregnant: true,
+            //    forcedXenotype: (ModsConfig.BiotechActive ? XenotypeDefOf.Baseliner : null),
+            //    excludeBiologicalAgeRange: (ModsConfig.BiotechActive ? new FloatRange(12.1f, 13f) : new FloatRange?()));
+
+            int index = StartingPawnUtility.PawnIndex(pawn);
+            PawnGenerationRequest request = StartingPawnUtility.GetGenerationRequest(index);
 
             if (!CheckGenderIsSatisfied(pawn))
             {
@@ -88,6 +106,8 @@ namespace RandomPlus
             while (randomRerollCounter < PawnFilter.RerollLimit)
             {
                 randomRerollCounter++;
+
+                PawnGenerator.RedressPawn(pawn, request);
 
                 pawn.ageTracker = new Pawn_AgeTracker(pawn);
                 randomAgeMethodInfo.Invoke(null, new object[] { pawn, request });
@@ -130,10 +150,17 @@ namespace RandomPlus
                     continue;
 
                 // Handle custom scenario
-                Find.Scenario.Notify_PawnGenerated(pawn, request.Context, true);
-                if (!CheckPawnIsSatisfied(pawn))
-                    continue;
+                //Find.Scenario.Notify_PawnGenerated(pawn, request.Context, true);
+                //if (!CheckPawnIsSatisfied(pawn))
+                //    continue;
+
                 // Generate Misc
+                if (ModsConfig.BiotechActive && pawn.genes != null)
+                {
+                    pawn.genes.Reset();
+                    XenotypeDef xenotype = ModsConfig.BiotechActive ? PawnGenerator.GetXenotypeForGeneratedPawn(request) : null;
+                    randomGeneMethodInfo.Invoke(null, new object[] { pawn, xenotype, request });
+                }
                 randomBodyTypeMethodInfo.Invoke(null, new object[] { pawn, request });
                 GeneratePawnStyle(pawn);
 
@@ -316,31 +343,55 @@ namespace RandomPlus
             return true;
         }
 
+        private static bool IsGeneAffectedHealth(Hediff hediff)
+        {
+            if (!ModsConfig.BiotechActive)
+                return false;
+
+            if (hediff is Hediff_ChemicalDependency chemicalDependency && chemicalDependency.LinkedGene != null)
+                return true;
+
+            return false;
+        }
+
         public static bool CheckHealthIsSatisfied(Pawn pawn)
         {
+
             // handle health options
             switch (pawnFilter.FilterHealthCondition)
             {
                 case PawnFilter.HealthOptions.AllowAll:
                     break;
                 case PawnFilter.HealthOptions.OnlyStartCondition:
-                    var foundNotStartCondition = pawn.health.hediffSet.hediffs.FirstOrDefault((hediff) => hediff.def.defName != "CryptosleepSickness" && hediff.def.defName != "Malnutrition");
+                    var foundNotStartCondition = 
+                        pawn.health.hediffSet.hediffs
+                        .FirstOrDefault((hediff) => hediff.def.defName != "CryptosleepSickness" && hediff.def.defName != "Malnutrition" && !IsGeneAffectedHealth(hediff));
                     if (foundNotStartCondition != null)
                         return false;
                     break;
                 case PawnFilter.HealthOptions.NoPain:
-                    var foundPain = pawn.health.hediffSet.hediffs.FirstOrDefault((hediff) => hediff.PainOffset > 0f);
+                    var foundPain = pawn.health.hediffSet.hediffs.FirstOrDefault((hediff) => hediff.PainOffset > 0f && !IsGeneAffectedHealth(hediff));
                     if (foundPain != null)
                         return false;
                     break;
                 case PawnFilter.HealthOptions.NoAddiction:
-                    var foundAddiction = pawn.health.hediffSet.hediffs.FirstOrDefault((hediff) => hediff is Hediff_Addiction);
+                    var foundAddiction = pawn.health.hediffSet.hediffs.FirstOrDefault((hediff) => hediff is Hediff_Addiction && !IsGeneAffectedHealth(hediff));
                     if (foundAddiction != null)
                         return false;
                     break;
                 case PawnFilter.HealthOptions.AllowNone:
-                    if (pawn.health.hediffSet.hediffs.Count > 0)
-                        return false;
+                    if (ModsConfig.BiotechActive)
+                    {
+                        if (pawn.health.hediffSet.hediffs.Where(i => !IsGeneAffectedHealth(i)).Count() > 0)
+                            return false;
+                    }
+                    else
+                    {
+                        if (pawn.health.hediffSet.hediffs.Count > 0)
+                            return false;
+                    }
+                    
+                    
                     break;
 //                case PawnFilter.HealthOptions.OnlyPositiveImplants:
 //                    var hediffs = pawn.health.hediffSet.hediffs;

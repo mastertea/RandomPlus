@@ -60,6 +60,12 @@ namespace RandomPlus
         public override void DoWindowContents(Rect inRect)
         {
             this.DrawPageTitle(inRect);
+
+            if (Prefs.DevMode && Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.UpArrow)
+            {
+                GenCommandLine.Restart();
+            }
+
             //Rect mainRect = base.GetMainRect(inRect, 30f, false);
 
             panelSkills.Draw();

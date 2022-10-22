@@ -31,7 +31,14 @@ namespace RandomPlus
                 return _RerollAlgorithmOptionValues;
             } 
         }
-        public static readonly RerollAlgorithmOptions DefaultRerollAlgorithm = RerollAlgorithmOptions.Fast;
+        public static RerollAlgorithmOptions DefaultRerollAlgorithm
+        {
+            get {
+                if (ModsConfig.IsActive("erdelf.HumanoidAlienRaces"))
+                    return RerollAlgorithmOptions.Normal;
+                return RerollAlgorithmOptions.Fast;
+            }
+        } 
 
         public enum RerollLimitOptions { N100 = 100, N250 = 250, N500 = 500, N1000 = 1000, N2500 = 2500, N5000 = 5000, N10000 = 10000, N50000 = 50000 }
         public readonly static string[] RerollLimitOptionValues = new string[] { "100", "250", "500", "1000", "2500", "5000", "10000", "50000" };
