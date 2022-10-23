@@ -75,27 +75,10 @@ namespace RandomPlus
                 return CheckPawnIsSatisfied(pawn);
             }
 
-            //PawnGenerationRequest request = new PawnGenerationRequest(
-            //        Faction.OfPlayer.def.basicMemberKind,
-            //        Faction.OfPlayer,
-            //        PawnGenerationContext.PlayerStarter,
-
-            //        forceGenerateNewPawn: true,
-            //        mustBeCapableOfViolence: TutorSystem.TutorialMode,
-            //        colonistRelationChanceFactor: 20f);
-
-            //PawnGenerationRequest request = new PawnGenerationRequest(
-            //    Find.GameInitData.startingPawnKind ?? Faction.OfPlayer.def.basicMemberKind, 
-            //    Faction.OfPlayer, 
-            //    PawnGenerationContext.PlayerStarter, 
-            //    forceGenerateNewPawn: true, 
-            //    mustBeCapableOfViolence: TutorSystem.TutorialMode, 
-            //    colonistRelationChanceFactor: 20f, allowPregnant: true,
-            //    forcedXenotype: (ModsConfig.BiotechActive ? XenotypeDefOf.Baseliner : null),
-            //    excludeBiologicalAgeRange: (ModsConfig.BiotechActive ? new FloatRange(12.1f, 13f) : new FloatRange?()));
-
             int index = StartingPawnUtility.PawnIndex(pawn);
             PawnGenerationRequest request = StartingPawnUtility.GetGenerationRequest(index);
+
+            request.ValidateAndFix();
 
             if (!CheckGenderIsSatisfied(pawn))
             {
@@ -105,66 +88,74 @@ namespace RandomPlus
 
             while (randomRerollCounter < PawnFilter.RerollLimit)
             {
-                randomRerollCounter++;
-
-                PawnGenerator.RedressPawn(pawn, request);
-
-                pawn.ageTracker = new Pawn_AgeTracker(pawn);
-                randomAgeMethodInfo.Invoke(null, new object[] { pawn, request });
-                if (!CheckAgeIsSatisfied(pawn))
-                    continue;
-
-                pawn.story.traits = new TraitSet(pawn);
-                pawn.skills = new Pawn_SkillTracker(pawn);
-                PawnBioAndNameGenerator.GiveAppropriateBioAndNameTo(pawn, pawn.story.birthLastName, request.Faction.def, request.ForceNoBackstory);
-                randomTraitMethodInfo.Invoke(null, new object[] { pawn, request });
-                randomSkillMethodInfo.Invoke(null, new object[] { pawn, request });
-                if (!CheckSkillsIsSatisfied(pawn) || !CheckTraitsIsSatisfied(pawn))
-                    continue;
-
-                for (int i = 0; i < 100; i++)
+                try
                 {
-                    pawn.health.Reset();
-                    try
+                    randomRerollCounter++;
+
+                    PawnGenerator.RedressPawn(pawn, request);
+
+                    pawn.ageTracker = new Pawn_AgeTracker(pawn);
+                    randomAgeMethodInfo.Invoke(null, new object[] { pawn, request });
+                    if (!CheckAgeIsSatisfied(pawn))
+                        continue;
+
+                    pawn.story.traits = new TraitSet(pawn);
+                    pawn.skills = new Pawn_SkillTracker(pawn);
+                    PawnBioAndNameGenerator.GiveAppropriateBioAndNameTo(pawn, pawn.story.birthLastName, request.Faction.def, request.ForceNoBackstory);
+                    randomTraitMethodInfo.Invoke(null, new object[] { pawn, request });
+                    randomSkillMethodInfo.Invoke(null, new object[] { pawn, request });
+                    if (!CheckSkillsIsSatisfied(pawn) || !CheckTraitsIsSatisfied(pawn))
+                        continue;
+
+                    for (int i = 0; i < 100; i++)
                     {
-                        // internally, this method only adds custom Scenario health (as of rimworld v1.3)
-                        Find.Scenario.Notify_NewPawnGenerating(pawn, request.Context);
-                        randomHealthMethodInfo.Invoke(null, new object[] { pawn, request });
-                        if (!(pawn.Dead || pawn.Destroyed || pawn.Downed))
+                        pawn.health.Reset();
+                        try
                         {
-                            //pawn.health.Reset();
-                            continue;
+                            // internally, this method only adds custom Scenario health (as of rimworld v1.3)
+                            Find.Scenario.Notify_NewPawnGenerating(pawn, request.Context);
+                            randomHealthMethodInfo.Invoke(null, new object[] { pawn, request });
+                            if (!(pawn.Dead || pawn.Destroyed || pawn.Downed))
+                            {
+                                //pawn.health.Reset();
+                                continue;
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            Find.WorldPawns.RemoveAndDiscardPawnViaGC(pawn);
+                            return false;
                         }
                     }
-                    catch (Exception)
+                    if (!CheckHealthIsSatisfied(pawn))
+                        continue;
+
+                    pawn.workSettings.EnableAndInitialize();
+                    if (!CheckWorkIsSatisfied(pawn))
+                        continue;
+
+                    // Handle custom scenario e.g forced traits
+                    Find.Scenario.Notify_PawnGenerated(pawn, request.Context, true);
+                    if (!CheckPawnIsSatisfied(pawn))
+                        continue;
+
+                    // Generate Misc
+                    if (ModsConfig.BiotechActive && pawn.genes != null)
                     {
-                        Find.WorldPawns.RemoveAndDiscardPawnViaGC(pawn);
-                        return false;
+                        pawn.genes.Reset();
+                        XenotypeDef xenotype = ModsConfig.BiotechActive ? PawnGenerator.GetXenotypeForGeneratedPawn(request) : null;
+                        randomGeneMethodInfo.Invoke(null, new object[] { pawn, xenotype, request });
                     }
+                    randomBodyTypeMethodInfo.Invoke(null, new object[] { pawn, request });
+                    GeneratePawnStyle(pawn);
+
+                    return true;
                 }
-                if (!CheckHealthIsSatisfied(pawn))
-                    continue;
-
-                pawn.workSettings.EnableAndInitialize();
-                if (!CheckWorkIsSatisfied(pawn))                 
-                    continue;
-
-                // Handle custom scenario
-                //Find.Scenario.Notify_PawnGenerated(pawn, request.Context, true);
-                //if (!CheckPawnIsSatisfied(pawn))
-                //    continue;
-
-                // Generate Misc
-                if (ModsConfig.BiotechActive && pawn.genes != null)
+                catch (Exception ex)
                 {
-                    pawn.genes.Reset();
-                    XenotypeDef xenotype = ModsConfig.BiotechActive ? PawnGenerator.GetXenotypeForGeneratedPawn(request) : null;
-                    randomGeneMethodInfo.Invoke(null, new object[] { pawn, xenotype, request });
+                    Log.Error("Error while generating pawn. Rethrowing. Exception: " + (object)ex);
+                    throw;
                 }
-                randomBodyTypeMethodInfo.Invoke(null, new object[] { pawn, request });
-                GeneratePawnStyle(pawn);
-
-                return true;
             }
 
             if (RandomRerollCounter() >= PawnFilter.RerollLimit)
