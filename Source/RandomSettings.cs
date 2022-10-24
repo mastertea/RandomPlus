@@ -77,7 +77,6 @@ namespace RandomPlus
 
             int index = StartingPawnUtility.PawnIndex(pawn);
             PawnGenerationRequest request = StartingPawnUtility.GetGenerationRequest(index);
-
             request.ValidateAndFix();
 
             if (!CheckGenderIsSatisfied(pawn))
@@ -140,9 +139,9 @@ namespace RandomPlus
                         continue;
 
                     // Generate Misc
-                    if (ModsConfig.BiotechActive && pawn.genes != null)
+                    if (ModsConfig.BiotechActive)
                     {
-                        pawn.genes.Reset();
+                        pawn.genes = new Pawn_GeneTracker(pawn);
                         XenotypeDef xenotype = ModsConfig.BiotechActive ? PawnGenerator.GetXenotypeForGeneratedPawn(request) : null;
                         randomGeneMethodInfo.Invoke(null, new object[] { pawn, xenotype, request });
                     }
