@@ -75,19 +75,26 @@ namespace RandomPlus
             List<Pawn> pawnList = (List<Pawn>)startingAndOptionalPawnsPropertyInfo.GetValue(null);
             Pawn pawn = pawnList[pawnIndex];
 
+            SpouseRelationUtility.Notify_PawnRegenerated(pawn);
+            pawn = StartingPawnUtility.RandomizeInPlace(pawn);
+
+            randomRerollCounter++;
+
+            if (CheckPawnIsSatisfied(pawn))
+                return;
+
             if (PawnFilter.RerollAlgorithm == PawnFilter.RerollAlgorithmOptions.Normal)
             {
                 while (true)
                 {
+                    if (CheckPawnIsSatisfied(pawn))
+                        break;
+
                     SpouseRelationUtility.Notify_PawnRegenerated(pawn);
                     pawn = StartingPawnUtility.RandomizeInPlace(pawn);
 
                     randomRerollCounter++;
-
-                    if (CheckPawnIsSatisfied(pawn))
-                        break;
                 }
-
                 return;
             }
 
@@ -101,9 +108,6 @@ namespace RandomPlus
 
             while (randomRerollCounter < PawnFilter.RerollLimit)
             {
-                //pawnList = (List<Pawn>)startingAndOptionalPawnsPropertyInfo.GetValue(null);
-                //pawn = pawnList[pawnIndex];
-
                 try
                 {
                     randomRerollCounter++;
