@@ -67,26 +67,43 @@ namespace RandomPlus
             randomRerollCounter = 0;
         }
 
-        public static bool Reroll(Pawn pawn)
+        public static void Reroll(int pawnIndex)
         {
-            if (PawnFilter.RerollAlgorithm == PawnFilter.RerollAlgorithmOptions.Normal
-                || randomRerollCounter == 0)
+            PropertyInfo startingAndOptionalPawnsPropertyInfo = typeof(StartingPawnUtility)
+                    .GetProperty("StartingAndOptionalPawns", BindingFlags.NonPublic | BindingFlags.Static);
+
+            List<Pawn> pawnList = (List<Pawn>)startingAndOptionalPawnsPropertyInfo.GetValue(null);
+            Pawn pawn = pawnList[pawnIndex];
+
+            if (PawnFilter.RerollAlgorithm == PawnFilter.RerollAlgorithmOptions.Normal)
             {
-                return CheckPawnIsSatisfied(pawn);
+                while (true)
+                {
+                    SpouseRelationUtility.Notify_PawnRegenerated(pawn);
+                    pawn = StartingPawnUtility.RandomizeInPlace(pawn);
+
+                    randomRerollCounter++;
+
+                    if (CheckPawnIsSatisfied(pawn))
+                        break;
+                }
+
+                return;
             }
 
             int index = StartingPawnUtility.PawnIndex(pawn);
             PawnGenerationRequest request = StartingPawnUtility.GetGenerationRequest(index);
             request.ValidateAndFix();
 
-            if (!CheckGenderIsSatisfied(pawn))
-            {
-                randomRerollCounter++;
-                return false;
-            }
+            Faction faction1;
+            Faction faction2 = request.Faction == null ? (!Find.FactionManager.TryGetRandomNonColonyHumanlikeFaction(out faction1, false, true) ? Faction.OfAncients : faction1) : request.Faction;
+            XenotypeDef xenotype = ModsConfig.BiotechActive ? PawnGenerator.GetXenotypeForGeneratedPawn(request) : null;
 
             while (randomRerollCounter < PawnFilter.RerollLimit)
             {
+                //pawnList = (List<Pawn>)startingAndOptionalPawnsPropertyInfo.GetValue(null);
+                //pawn = pawnList[pawnIndex];
+
                 try
                 {
                     randomRerollCounter++;
@@ -100,7 +117,8 @@ namespace RandomPlus
 
                     pawn.story.traits = new TraitSet(pawn);
                     pawn.skills = new Pawn_SkillTracker(pawn);
-                    PawnBioAndNameGenerator.GiveAppropriateBioAndNameTo(pawn, pawn.story.birthLastName, request.Faction.def, request.ForceNoBackstory);
+
+                    PawnBioAndNameGenerator.GiveAppropriateBioAndNameTo(pawn, faction2.def, request, xenotype);
                     randomTraitMethodInfo.Invoke(null, new object[] { pawn, request });
                     randomSkillMethodInfo.Invoke(null, new object[] { pawn, request });
                     if (!CheckSkillsIsSatisfied(pawn) || !CheckTraitsIsSatisfied(pawn))
@@ -122,8 +140,10 @@ namespace RandomPlus
                         }
                         catch (Exception)
                         {
-                            Find.WorldPawns.RemoveAndDiscardPawnViaGC(pawn);
-                            return false;
+                            //SpouseRelationUtility.Notify_PawnRegenerated(pawn);
+                            //pawn = StartingPawnUtility.RandomizeInPlace(pawn);
+                            //Find.WorldPawns.RemoveAndDiscardPawnViaGC(pawn);
+                            continue;
                         }
                     }
                     if (!CheckHealthIsSatisfied(pawn))
@@ -142,26 +162,24 @@ namespace RandomPlus
                     if (ModsConfig.BiotechActive)
                     {
                         pawn.genes = new Pawn_GeneTracker(pawn);
-                        XenotypeDef xenotype = ModsConfig.BiotechActive ? PawnGenerator.GetXenotypeForGeneratedPawn(request) : null;
                         randomGeneMethodInfo.Invoke(null, new object[] { pawn, xenotype, request });
                     }
                     randomBodyTypeMethodInfo.Invoke(null, new object[] { pawn, request });
                     GeneratePawnStyle(pawn);
 
-                    return true;
+                    return;
                 }
                 catch (Exception ex)
                 {
-                    Log.Error("Error while generating pawn. Rethrowing. Exception: " + (object)ex);
-                    throw;
-                }
-            }
+                    Find.WorldPawns.RemoveAndDiscardPawnViaGC(pawn);
+                    SpouseRelationUtility.Notify_PawnRegenerated(pawn);
+                    pawn = StartingPawnUtility.RandomizeInPlace(pawn);
 
-            if (RandomRerollCounter() >= PawnFilter.RerollLimit)
-            {
-                return true;
+                    //Log.Error("Error while generating pawn. Rethrowing. Exception: \n" + (object)ex);
+                    //throw;
+                }
+
             }
-            return false;
         }
 
         public static bool CheckPawnIsSatisfied(Pawn pawn)
@@ -170,26 +188,25 @@ namespace RandomPlus
             {
                 return true;
             }
-            randomRerollCounter++;
-
+            //Log.Warning("a1");
             if (!CheckGenderIsSatisfied(pawn))
                 return false;
-
+            //Log.Warning("a2");
             if (!CheckSkillsIsSatisfied(pawn))
                 return false;
-
+            //Log.Warning("a3");
             if (!CheckTraitsIsSatisfied(pawn))
                 return false;
-
+            //Log.Warning("a4");
             if (!CheckHealthIsSatisfied(pawn))
                 return false;
-
+            //Log.Warning("a5");
             if (!CheckWorkIsSatisfied(pawn))
                 return false;
-
+            //Log.Warning("a6");
             if (!CheckAgeIsSatisfied(pawn))
                 return false;
-
+            //Log.Warning("a7");
             return true;
         }
 
@@ -225,6 +242,7 @@ namespace RandomPlus
                     var skillRecord = skillList.FirstOrDefault(i => i.def == skillFilter.SkillDef);
                     if (skillRecord != null)
                     {
+                        //Log.Error(skillRecord.Level + ":" + skillFilter.MinValue);
                         if (skillRecord.passion < skillFilter.Passion ||
                             skillRecord.Level < skillFilter.MinValue)
                         {

@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using UnityEngine;
 using Verse;
+using System.Collections;
 
 namespace RandomPlus
 {
@@ -31,80 +32,92 @@ namespace RandomPlus
         }
     }
 
-    [HarmonyPatch(typeof(Page_ConfigureStartingPawns), "RandomizeCurPawn")]
+    [HarmonyPatch(typeof(StartingPawnUtility), "RandomizePawn")]
     class Patch_RandomizeMethod
     {
         static bool rerolling;
 
         [HarmonyPrefix]
-        static bool Prefix()
+        static bool Prefix(int pawnIndex)
         {
-            if (rerolling)
-                return false;
+            //if (rerolling)
+            //    return false;
 
-            rerolling = true;
+            //rerolling = true;
             RandomSettings.ResetRerollCounter();
-            return true;
-        }
+            //return true;
 
-        [HarmonyPostfix]
-        static void Postfix()
-        {
-            GC.Collect();
-            rerolling = false;
-        }
-
-        [HarmonyTranspiler]
-        static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
-        {
-            int startIndex = -1;
-
-            // load current pawn
-            FieldInfo curPawnFieldInfo = typeof(Page_ConfigureStartingPawns)
-                .GetField("curPawn", BindingFlags.NonPublic | BindingFlags.Instance);
-            // remove pawn relationship
-            MethodInfo notify_PawnRegeneratedMethodInfo = typeof(SpouseRelationUtility)
-                .GetMethod("Notify_PawnRegenerated", BindingFlags.Public | BindingFlags.Static);
-
-            var codes = new List<CodeInstruction>(instructions);
-
-            for (int i = 0; i < codes.Count; i++)
+            //var currentWindow = Find.WindowStack.currentlyDrawnWindow;
+            //Log.Warning(pawnIndex.ToString());
+            //Log.Warning(Find.GameInitData.startingAndOptionalPawns.Count.ToString());
+            if (!TutorSystem.AllowAction((EventPack)nameof(StartingPawnUtility.RandomizePawn)))
+                return false;
+            int num = 0;
+            do
             {
-                if (codes[i].opcode == OpCodes.Ldarg_0 &&
-                    codes[i + 1].opcode == OpCodes.Ldfld &&
-                    codes[i + 1].operand == (object)curPawnFieldInfo &&
-                    codes[i + 2].opcode == OpCodes.Call &&
-                    codes[i + 2].operand == (object)notify_PawnRegeneratedMethodInfo)
-                {
-                    startIndex = i;
-                    break;
-                }
+                RandomSettings.Reroll(pawnIndex);
+                num++;
             }
+            while (num <= 20 && !StartingPawnUtility.WorkTypeRequirementsSatisfied());
+            TutorSystem.Notify_Event((EventPack) nameof(StartingPawnUtility.RandomizePawn));
 
-            if (startIndex != -1)
-            {
-                //var randomLimitRerollMethodInfo = typeof(RandomSettings)
-                //    .GetMethod("RandomRerollLimit", BindingFlags.Public | BindingFlags.Static);
-
-                //var CheckPawnIsSatisfiedMethodInfo = typeof(RandomSettings)
-                //    .GetMethod("CheckPawnIsSatisfied", BindingFlags.Public | BindingFlags.Static);
-
-                var RerollMethodInfo = typeof(RandomSettings)
-                    .GetMethod("Reroll", BindingFlags.Public | BindingFlags.Static);
-
-                var startLoopLocation = codes[startIndex + 16].operand;
-
-                var newCode = new List<CodeInstruction>();
-                newCode.Add(new CodeInstruction(OpCodes.Nop));
-                newCode.Add(new CodeInstruction(OpCodes.Ldarg_0));
-                newCode.Add(new CodeInstruction(OpCodes.Ldfld, curPawnFieldInfo));
-                newCode.Add(new CodeInstruction(OpCodes.Call, RerollMethodInfo));
-                newCode.Add(new CodeInstruction(OpCodes.Brfalse, startLoopLocation));
-                codes.InsertRange(startIndex + 8, newCode);
-            }
-
-            return codes;
+            return false;
         }
+
+        //[HarmonyPostfix]
+        //static void Postfix()
+        //{
+        //    GC.Collect();
+        //    rerolling = false;
+        //}
+
+        //[HarmonyTranspiler]
+        //static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+        //{
+        //    int startIndex = -1;
+
+        //    // load current pawn
+        //    FieldInfo curPawnFieldInfo = typeof(Page_ConfigureStartingPawns)
+        //        .GetField("curPawn", BindingFlags.NonPublic | BindingFlags.Instance);
+
+
+        //    // remove pawn relationship
+        //    MethodInfo notify_PawnRegeneratedMethodInfo = typeof(SpouseRelationUtility)
+        //        .GetMethod("Notify_PawnRegenerated", BindingFlags.Public | BindingFlags.Static);
+
+        //    var codes = new List<CodeInstruction>(instructions);
+
+        //    for (int i = 0; i < codes.Count; i++)
+        //    {
+        //        if (codes[i].opcode == OpCodes.Ldarg_0 &&
+        //            codes[i + 1].opcode == OpCodes.Ldfld &&
+        //            codes[i + 1].operand == (object)curPawnFieldInfo &&
+        //            codes[i + 2].opcode == OpCodes.Call &&
+        //            codes[i + 2].operand == (object)notify_PawnRegeneratedMethodInfo)
+        //        {
+        //            startIndex = i;
+        //            break;
+        //        }
+        //    }
+
+        //    if (startIndex != -1)
+        //    {
+        //        var RerollMethodInfo = typeof(RandomSettings)
+        //            .GetMethod("Reroll", BindingFlags.Public | BindingFlags.Static);
+
+        //        var startLoopLocation = codes[startIndex + 16].operand;
+
+        //        var newCode = new List<CodeInstruction>();
+        //        newCode.Add(new CodeInstruction(OpCodes.Nop));
+        //        newCode.Add(new CodeInstruction(OpCodes.Ldarg_0));
+        //        newCode.Add(new CodeInstruction(OpCodes.Ldfld, curPawnFieldInfo));
+        //        newCode.Add(new CodeInstruction(OpCodes.Call, RerollMethodInfo));
+        //        newCode.Add(new CodeInstruction(OpCodes.Brfalse, startLoopLocation));
+        //        codes.InsertRange(startIndex + 8, newCode);
+        //    }
+
+        //    return codes;
+        //}
     }
 
     // working progress
