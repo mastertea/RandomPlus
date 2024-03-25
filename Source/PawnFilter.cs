@@ -36,7 +36,7 @@ namespace RandomPlus
             get {
                 if (ModsConfig.IsActive("erdelf.HumanoidAlienRaces"))
                     return RerollAlgorithmOptions.Normal;
-                return RerollAlgorithmOptions.Fast;
+                return RerollAlgorithmOptions.Normal;
             }
         } 
 

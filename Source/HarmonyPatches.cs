@@ -222,6 +222,9 @@ namespace RandomPlus
             if (ModsConfig.BiotechActive)
                 rerollLabelRect.y += 60;
 
+            if (RandomSettings.PawnFilter == null)
+                RandomSettings.Init();
+                
             string labelText = "RandomPlus.RerollLabel".Translate() + RandomSettings.RandomRerollCounter() + "/" + RandomSettings.PawnFilter.RerollLimit;
 
             var tmpSave = GUI.color;
@@ -337,7 +340,7 @@ namespace RandomPlus
                     var page = new Page_RandomEditor();
                     Find.WindowStack.Add(page);
                 });
-            }, "wait", true, null, false);
+            }, null, true, null, false);
 
 
         }

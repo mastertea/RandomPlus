@@ -5,18 +5,20 @@ using System.IO;
 using System.Linq;
 using System.Collections.Generic;
 using System.Reflection;
+using Verse.AI;
 
 namespace RandomPlus
 {
     public class RandomSettings
     {
-        static FieldInfo curPawnFieldInfo;
         static MethodInfo randomAgeMethodInfo;
         static MethodInfo randomTraitMethodInfo;
         static MethodInfo randomSkillMethodInfo;
         static MethodInfo randomHealthMethodInfo;
         static MethodInfo randomBodyTypeMethodInfo;
         static MethodInfo randomGeneMethodInfo;
+
+        static PropertyInfo startingAndOptionalPawnsPropertyInfo;
 
         public static int MinSkillRange;
 
@@ -40,9 +42,6 @@ namespace RandomPlus
         {
             pawnFilter = new PawnFilter();
 
-            curPawnFieldInfo = typeof(Page_ConfigureStartingPawns)
-            .GetField("curPawn", BindingFlags.NonPublic | BindingFlags.Instance);
-
             randomAgeMethodInfo = typeof(PawnGenerator)
                 .GetMethod("GenerateRandomAge", BindingFlags.NonPublic | BindingFlags.Static);
 
@@ -60,6 +59,9 @@ namespace RandomPlus
 
             randomGeneMethodInfo = typeof(PawnGenerator)
                 .GetMethod("GenerateGenes", BindingFlags.NonPublic | BindingFlags.Static);
+
+            startingAndOptionalPawnsPropertyInfo = typeof(StartingPawnUtility)
+                .GetProperty("StartingAndOptionalPawns", BindingFlags.NonPublic | BindingFlags.Static);
         }
 
         public static void ResetRerollCounter()
@@ -69,9 +71,6 @@ namespace RandomPlus
 
         public static void Reroll(int pawnIndex)
         {
-            PropertyInfo startingAndOptionalPawnsPropertyInfo = typeof(StartingPawnUtility)
-                    .GetProperty("StartingAndOptionalPawns", BindingFlags.NonPublic | BindingFlags.Static);
-
             List<Pawn> pawnList = (List<Pawn>)startingAndOptionalPawnsPropertyInfo.GetValue(null);
             Pawn pawn = pawnList[pawnIndex];
 
@@ -83,7 +82,8 @@ namespace RandomPlus
             if (CheckPawnIsSatisfied(pawn))
                 return;
 
-            if (PawnFilter.RerollAlgorithm == PawnFilter.RerollAlgorithmOptions.Normal)
+            if (PawnFilter.RerollAlgorithm == PawnFilter.RerollAlgorithmOptions.Normal ||
+                Find.WindowStack.currentlyDrawnWindow is Dialog_ChooseNewWanderers)
             {
                 while (true)
                 {
@@ -180,6 +180,7 @@ namespace RandomPlus
                     pawn = StartingPawnUtility.RandomizeInPlace(pawn);
 
                     //Log.Error("Error while generating pawn. Rethrowing. Exception: \n" + (object)ex);
+                    //return;
                     //throw;
                 }
 
@@ -192,25 +193,18 @@ namespace RandomPlus
             {
                 return true;
             }
-            //Log.Warning("a1");
             if (!CheckGenderIsSatisfied(pawn))
                 return false;
-            //Log.Warning("a2");
             if (!CheckSkillsIsSatisfied(pawn))
                 return false;
-            //Log.Warning("a3");
             if (!CheckTraitsIsSatisfied(pawn))
                 return false;
-            //Log.Warning("a4");
             if (!CheckHealthIsSatisfied(pawn))
                 return false;
-            //Log.Warning("a5");
             if (!CheckWorkIsSatisfied(pawn))
                 return false;
-            //Log.Warning("a6");
             if (!CheckAgeIsSatisfied(pawn))
                 return false;
-            //Log.Warning("a7");
             return true;
         }
 
@@ -246,7 +240,6 @@ namespace RandomPlus
                     var skillRecord = skillList.FirstOrDefault(i => i.def == skillFilter.SkillDef);
                     if (skillRecord != null)
                     {
-                        //Log.Error(skillRecord.Level + ":" + skillFilter.MinValue);
                         if (skillRecord.passion < skillFilter.Passion ||
                             skillRecord.Level < skillFilter.MinValue)
                         {
