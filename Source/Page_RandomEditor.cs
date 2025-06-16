@@ -12,6 +12,7 @@ namespace RandomPlus
         PanelTraits panelTraits;
         PanelOthers panelOthers;
 
+        // RimWorld 1.6: Scale-aware UI constants
         private static readonly int ButtonWidth = 100;
         private static readonly int ButtonHeight = 20;
 
@@ -31,7 +32,9 @@ namespace RandomPlus
         {
             get
             {
-                return new Vector2(694, 40 + 590);
+                // RimWorld 1.6: Apply UI scaling for Unity 2022.3 compatibility
+                float uiScale = Prefs.UIScale;
+                return new Vector2(694f * uiScale, (40f + 590f) * uiScale);
             }
         }
 
@@ -53,33 +56,91 @@ namespace RandomPlus
             panelTraits = new PanelTraits();
             panelOthers = new PanelOthers();
 
-            RectButtonResetAll = new Rect(InitialSize.x - (ButtonWidth + 50), ButtonHeight - 8, ButtonWidth, ButtonHeight);
-            RectButtonSaveLoad = new Rect(InitialSize.x - (ButtonWidth * 2 + 60), ButtonHeight - 8, ButtonWidth, ButtonHeight);
+            // RimWorld 1.6: Scale-aware button positioning
+            float uiScale = Prefs.UIScale;
+            RectButtonResetAll = new Rect(
+                (InitialSize.x / uiScale) - (ButtonWidth + 50), 
+                ButtonHeight - 8, 
+                ButtonWidth, 
+                ButtonHeight
+            );
+            RectButtonSaveLoad = new Rect(
+                (InitialSize.x / uiScale) - (ButtonWidth * 2 + 60), 
+                ButtonHeight - 8, 
+                ButtonWidth, 
+                ButtonHeight
+            );
         }
 
         public override void DoWindowContents(Rect inRect)
         {
             this.DrawPageTitle(inRect);
 
+            // RimWorld 1.6: Enhanced developer mode check
             if (Prefs.DevMode && Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.UpArrow)
             {
-                GenCommandLine.Restart();
+                try
+                {
+                    GenCommandLine.Restart();
+                }
+                catch (System.Exception ex)
+                {
+                    Log.Warning($"RandomPlus: Failed to restart via GenCommandLine: {ex.Message}");
+                }
             }
 
-            //Rect mainRect = base.GetMainRect(inRect, 30f, false);
-
-            panelSkills.Draw();
-            panelTraits.Draw();
-            panelOthers.Draw();
-
-            if (Widgets.ButtonText(RectButtonSaveLoad, "RandomPlus.RandomEditor.SaveLoadButton".Translate(), true, false, true))
+            // Draw panels
+            try
             {
-                Find.WindowStack.Add(new SaveLoadDialog());
+                panelSkills?.Draw();
+                panelTraits?.Draw();
+                panelOthers?.Draw();
+            }
+            catch (System.Exception ex)
+            {
+                Log.Error($"RandomPlus: Error drawing panels: {ex.Message}");
             }
 
-            if (Widgets.ButtonText(RectButtonResetAll, "RandomPlus.RandomEditor.ResetAllButton".Translate(), true, true, true))
+            // RimWorld 1.6: Safe button drawing with null checks
+            try
             {
-                RandomSettings.PawnFilter.ResetAll();
+                if (Widgets.ButtonText(RectButtonSaveLoad, "RandomPlus.RandomEditor.SaveLoadButton".Translate(), true, false, true))
+                {
+                    Find.WindowStack.Add(new SaveLoadDialog());
+                }
+
+                if (Widgets.ButtonText(RectButtonResetAll, "RandomPlus.RandomEditor.ResetAllButton".Translate(), true, true, true))
+                {
+                    RandomSettings.PawnFilter?.ResetAll();
+                }
+            }
+            catch (System.Exception ex)
+            {
+                Log.Error($"RandomPlus: Error drawing buttons: {ex.Message}");
+            }
+        }
+
+        // RimWorld 1.6: Override for better window management
+        public override void WindowUpdate()
+        {
+            base.WindowUpdate();
+            
+            // Handle UI scale changes dynamically
+            if (Event.current.type == EventType.Layout)
+            {
+                float uiScale = Prefs.UIScale;
+                RectButtonResetAll = new Rect(
+                    (InitialSize.x / uiScale) - (ButtonWidth + 50), 
+                    ButtonHeight - 8, 
+                    ButtonWidth, 
+                    ButtonHeight
+                );
+                RectButtonSaveLoad = new Rect(
+                    (InitialSize.x / uiScale) - (ButtonWidth * 2 + 60), 
+                    ButtonHeight - 8, 
+                    ButtonWidth, 
+                    ButtonHeight
+                );
             }
         }
     }
