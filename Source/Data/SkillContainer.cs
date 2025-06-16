@@ -1,7 +1,6 @@
 ﻿using Verse;
 using RimWorld;
 using System;
-using System.Runtime.Remoting.Messaging;
 
 namespace RandomPlus
 {
@@ -15,8 +14,7 @@ namespace RandomPlus
                 OnChange?.Invoke();
             }
         }
-
-
+        
         private Passion passion;
         public Passion Passion
         {
@@ -26,7 +24,7 @@ namespace RandomPlus
                 OnChange?.Invoke();
             }
         }
-
+        
         private int minValue;
         public int MinValue
         {
@@ -39,15 +37,15 @@ namespace RandomPlus
                 OnChange?.Invoke();
             }
         }
-
+        
         private Action OnChange;
-
+        
         public SkillContainer()
         {
             passion = Passion.None;
             MinValue = 0;
         }
-
+        
         public SkillContainer(SkillDef skillDef, Action OnChange)
         {
             this.skillDef = skillDef;
@@ -55,7 +53,7 @@ namespace RandomPlus
             MinValue = 0;
             this.OnChange = OnChange;
         }
-
+        
         public void ExposeData()
         {
             Scribe_Defs.Look<SkillDef>(ref skillDef, "skillDef");

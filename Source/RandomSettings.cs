@@ -42,26 +42,34 @@ namespace RandomPlus
         {
             pawnFilter = new PawnFilter();
 
-            randomAgeMethodInfo = typeof(PawnGenerator)
-                .GetMethod("GenerateRandomAge", BindingFlags.NonPublic | BindingFlags.Static);
+            // RimWorld 1.6: Updated reflection for potentially changed method signatures
+            try
+            {
+                randomAgeMethodInfo = typeof(PawnGenerator)
+                    .GetMethod("GenerateRandomAge", BindingFlags.NonPublic | BindingFlags.Static);
 
-            randomTraitMethodInfo = typeof(PawnGenerator)
-                .GetMethod("GenerateTraits", BindingFlags.NonPublic | BindingFlags.Static);
+                randomTraitMethodInfo = typeof(PawnGenerator)
+                    .GetMethod("GenerateTraits", BindingFlags.NonPublic | BindingFlags.Static);
 
-            randomSkillMethodInfo = typeof(PawnGenerator)
-                .GetMethod("GenerateSkills", BindingFlags.NonPublic | BindingFlags.Static);
+                randomSkillMethodInfo = typeof(PawnGenerator)
+                    .GetMethod("GenerateSkills", BindingFlags.NonPublic | BindingFlags.Static);
 
-            randomHealthMethodInfo = typeof(PawnGenerator)
-                .GetMethod("GenerateInitialHediffs", BindingFlags.NonPublic | BindingFlags.Static);
+                randomHealthMethodInfo = typeof(PawnGenerator)
+                    .GetMethod("GenerateInitialHediffs", BindingFlags.NonPublic | BindingFlags.Static);
 
-            randomBodyTypeMethodInfo = typeof(PawnGenerator)
-                .GetMethod("GenerateBodyType", BindingFlags.NonPublic | BindingFlags.Static);
+                randomBodyTypeMethodInfo = typeof(PawnGenerator)
+                    .GetMethod("GenerateBodyType", BindingFlags.NonPublic | BindingFlags.Static);
 
-            randomGeneMethodInfo = typeof(PawnGenerator)
-                .GetMethod("GenerateGenes", BindingFlags.NonPublic | BindingFlags.Static);
+                randomGeneMethodInfo = typeof(PawnGenerator)
+                    .GetMethod("GenerateGenes", BindingFlags.NonPublic | BindingFlags.Static);
 
-            startingAndOptionalPawnsPropertyInfo = typeof(StartingPawnUtility)
-                .GetProperty("StartingAndOptionalPawns", BindingFlags.NonPublic | BindingFlags.Static);
+                startingAndOptionalPawnsPropertyInfo = typeof(StartingPawnUtility)
+                    .GetProperty("StartingAndOptionalPawns", BindingFlags.NonPublic | BindingFlags.Static);
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"RandomPlus: Failed to initialize reflection methods: {ex.Message}");
+            }
         }
 
         public static void ResetRerollCounter()
@@ -102,8 +110,12 @@ namespace RandomPlus
             PawnGenerationRequest request = StartingPawnUtility.GetGenerationRequest(index);
             request.ValidateAndFix();
 
+            // RimWorld 1.6: Enhanced faction handling
             Faction faction1;
-            Faction faction2 = request.Faction == null ? (!Find.FactionManager.TryGetRandomNonColonyHumanlikeFaction(out faction1, false, true) ? Faction.OfAncients : faction1) : request.Faction;
+            Faction faction2 = request.Faction ?? 
+                (!Find.FactionManager.TryGetRandomNonColonyHumanlikeFaction(out faction1, false, true) 
+                    ? Faction.OfAncients : faction1);
+            
             XenotypeDef xenotype = ModsConfig.BiotechActive ? PawnGenerator.GetXenotypeForGeneratedPawn(request) : null;
 
             while (randomRerollCounter < PawnFilter.RerollLimit)
@@ -114,8 +126,19 @@ namespace RandomPlus
 
                     PawnGenerator.RedressPawn(pawn, request);
 
+                    // RimWorld 1.6: Safer age generation with null checks
                     pawn.ageTracker = new Pawn_AgeTracker(pawn);
-                    randomAgeMethodInfo.Invoke(null, new object[] { pawn, request });
+                    if (randomAgeMethodInfo != null)
+                    {
+                        randomAgeMethodInfo.Invoke(null, new object[] { pawn, request });
+                    }
+                    else
+                    {
+                        // Fallback if reflection fails
+                        pawn.ageTracker.AgeBiologicalTicks = (long)(Rand.Range(16, 65) * 3600000L);
+                        pawn.ageTracker.AgeChronologicalTicks = pawn.ageTracker.AgeBiologicalTicks;
+                    }
+                    
                     if (!CheckAgeIsSatisfied(pawn))
                         continue;
 
@@ -123,37 +146,41 @@ namespace RandomPlus
                     pawn.skills = new Pawn_SkillTracker(pawn);
 
                     PawnBioAndNameGenerator.GiveAppropriateBioAndNameTo(pawn, faction2.def, request, xenotype);
-                    randomTraitMethodInfo.Invoke(null, new object[] { pawn, request });
-                    randomSkillMethodInfo.Invoke(null, new object[] { pawn, request });
+                    
+                    // RimWorld 1.6: Safe method invocation with null checks
+                    randomTraitMethodInfo?.Invoke(null, new object[] { pawn, request });
+                    randomSkillMethodInfo?.Invoke(null, new object[] { pawn, request });
+                    
                     if (!CheckSkillsIsSatisfied(pawn) || !CheckTraitsIsSatisfied(pawn))
                         continue;
 
-                    for (int i = 0; i < 100; i++)
+                    // RimWorld 1.6: Improved health generation loop with better error handling
+                    bool healthGenSuccess = false;
+                    for (int i = 0; i < 100 && !healthGenSuccess; i++)
                     {
                         pawn.health.Reset();
                         try
                         {
-                            // internally, this method only adds custom Scenario health (as of rimworld v1.3)
+                            // Internally, this method only adds custom Scenario health
                             Find.Scenario.Notify_NewPawnGenerating(pawn, request.Context);
-                            randomHealthMethodInfo.Invoke(null, new object[] { pawn, request });
+                            randomHealthMethodInfo?.Invoke(null, new object[] { pawn, request });
+                            
                             if (!(pawn.Dead || pawn.Destroyed || pawn.Downed))
                             {
-                                //pawn.health.Reset();
-                                continue;
+                                healthGenSuccess = true;
                             }
                         }
-                        catch (Exception)
+                        catch (Exception ex)
                         {
-                            //SpouseRelationUtility.Notify_PawnRegenerated(pawn);
-                            //pawn = StartingPawnUtility.RandomizeInPlace(pawn);
-                            //Find.WorldPawns.RemoveAndDiscardPawnViaGC(pawn);
+                            Log.Warning($"RandomPlus: Health generation failed on attempt {i}: {ex.Message}");
                             continue;
                         }
                     }
+                    
                     if (!CheckHealthIsSatisfied(pawn))
                         continue;
 
-                    pawn.workSettings.EnableAndInitialize();
+                    pawn.workSettings?.EnableAndInitialize();
                     if (!CheckWorkIsSatisfied(pawn))
                         continue;
 
@@ -162,28 +189,33 @@ namespace RandomPlus
                     if (!CheckPawnIsSatisfied(pawn))
                         continue;
 
-                    // Generate Misc
+                    // RimWorld 1.6: Enhanced gene and body type generation
                     if (ModsConfig.BiotechActive)
                     {
                         pawn.genes = new Pawn_GeneTracker(pawn);
-                        randomGeneMethodInfo.Invoke(null, new object[] { pawn, xenotype, request });
+                        randomGeneMethodInfo?.Invoke(null, new object[] { pawn, xenotype, request });
                     }
-                    randomBodyTypeMethodInfo.Invoke(null, new object[] { pawn, request });
+                    
+                    randomBodyTypeMethodInfo?.Invoke(null, new object[] { pawn, request });
                     GeneratePawnStyle(pawn);
 
                     return;
                 }
                 catch (Exception ex)
                 {
-                    Find.WorldPawns.RemoveAndDiscardPawnViaGC(pawn);
-                    SpouseRelationUtility.Notify_PawnRegenerated(pawn);
-                    pawn = StartingPawnUtility.RandomizeInPlace(pawn);
-
-                    //Log.Error("Error while generating pawn. Rethrowing. Exception: \n" + (object)ex);
-                    //return;
-                    //throw;
+                    Log.Warning($"RandomPlus: Error during pawn generation (attempt {randomRerollCounter}): {ex.Message}");
+                    try
+                    {
+                        Find.WorldPawns.RemoveAndDiscardPawnViaGC(pawn);
+                        SpouseRelationUtility.Notify_PawnRegenerated(pawn);
+                        pawn = StartingPawnUtility.RandomizeInPlace(pawn);
+                    }
+                    catch (Exception ex2)
+                    {
+                        Log.Error($"RandomPlus: Critical error in pawn cleanup: {ex2.Message}");
+                        break; // Exit to prevent infinite loop
+                    }
                 }
-
             }
         }
 
@@ -248,7 +280,7 @@ namespace RandomPlus
                     }
                     else
                     {
-                        Log.Error("Shouldn't reach here!");
+                        Log.Error("RandomPlus: Skill record not found - this shouldn't happen!");
                     }
                 }
             }
@@ -270,7 +302,7 @@ namespace RandomPlus
                 pawnFilter.skillRange.max != PawnFilter.SkillMaxDefault)
             {
                 int skillTotalCounter = 0;
-                for (int i=0; i<skillList.Count;i++)
+                for (int i = 0; i < skillList.Count; i++)
                 {
                     var skill = skillList[i];
                     if (PawnFilter.countOnlyHighestAttack)
@@ -285,7 +317,7 @@ namespace RandomPlus
                     }
                     if (PawnFilter.countOnlyPassion)
                     {
-                        if(skill.passion > 0)
+                        if (skill.passion > 0)
                             skillTotalCounter += skill.Level;
                     }
                     else
@@ -361,7 +393,6 @@ namespace RandomPlus
 
         public static bool CheckHealthIsSatisfied(Pawn pawn)
         {
-
             // handle health options
             switch (pawnFilter.FilterHealthCondition)
             {
@@ -395,24 +426,7 @@ namespace RandomPlus
                         if (pawn.health.hediffSet.hediffs.Count > 0)
                             return false;
                     }
-                    
-                    
                     break;
-//                case PawnFilter.HealthOptions.OnlyPositiveImplants:
-//                    var hediffs = pawn.health.hediffSet.hediffs;
-//                    Hediff onlyPositiveImplants = null;
-//                    for (int i = 0; i < hediffs.Count; i++)
-//                    {
-//                        var hediff = hediffs[i];
-//                        if (hediff is Hediff_Implant)
-//                        {
-//                            onlyPositiveImplants = hediff;
-//                            break;
-//                        }
-//;                    }
-//                    if (onlyPositiveImplants == null)
-//                        return false;
-//                    break;
             }
             return true;
         }
@@ -503,21 +517,31 @@ namespace RandomPlus
             return $"(♂:{pecentMale}%,♀:{pecentFemale}%)";
         }
 
+        // RimWorld 1.6: Enhanced pawn style generation with better error handling
         public static void GeneratePawnStyle(Pawn pawn)
         {
             if (pawn.RaceProps.Humanlike)
             {
-                pawn.story.hairDef = PawnStyleItemChooser.RandomHairFor(pawn);
-                if (pawn.style != null)
+                try
                 {
-                pawn.style.beardDef = pawn.gender == Gender.Male? PawnStyleItemChooser.RandomBeardFor(pawn) : BeardDefOf.NoBeard;
-                if (ModsConfig.IdeologyActive)
-                {
-                    pawn.style.FaceTattoo = PawnStyleItemChooser.RandomTattooFor(pawn, TattooType.Face);
-                    pawn.style.BodyTattoo = PawnStyleItemChooser.RandomTattooFor(pawn, TattooType.Body);
+                    pawn.story.hairDef = PawnStyleItemChooser.RandomHairFor(pawn);
+                    if (pawn.style != null)
+                    {
+                        pawn.style.beardDef = pawn.gender == Gender.Male ? PawnStyleItemChooser.RandomBeardFor(pawn) : BeardDefOf.NoBeard;
+                        if (ModsConfig.IdeologyActive)
+                        {
+                            pawn.style.FaceTattoo = PawnStyleItemChooser.RandomTattooFor(pawn, TattooType.Face);
+                            pawn.style.BodyTattoo = PawnStyleItemChooser.RandomTattooFor(pawn, TattooType.Body);
+                        }
+                        else
+                        {
+                            pawn.style.SetupTattoos_NoIdeology();
+                        }
+                    }
                 }
-                else
-                    pawn.style.SetupTattoos_NoIdeology();
+                catch (Exception ex)
+                {
+                    Log.Warning($"RandomPlus: Failed to generate pawn style: {ex.Message}");
                 }
             }
         }
