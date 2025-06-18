@@ -1,105 +1,72 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{AA8C0117-C8C3-4041-B9BA-D0D0377C019F}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>RandomPlus</RootNamespace>
+    <TargetFramework>netstandard2.1</TargetFramework>
     <AssemblyName>RandomPlus</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
+    <RootNamespace>RandomPlus</RootNamespace>
+    <OutputPath>Resources\1.6\Assemblies\</OutputPath>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
+
+  <!-- Auto-detect RimWorld installation paths -->
+  <PropertyGroup>
+    <!-- Linux paths (including Proton) -->
+    <RimWorldDir Condition="'$(RimWorldDir)' == '' And Exists('$(HOME)/.steam/steam/steamapps/common/RimWorld')">$(HOME)/.steam/steam/steamapps/common/RimWorld</RimWorldDir>
+    <RimWorldDir Condition="'$(RimWorldDir)' == '' And Exists('$(HOME)/.local/share/Steam/steamapps/common/RimWorld')">$(HOME)/.local/share/Steam/steamapps/common/RimWorld</RimWorldDir>
+    
+    <!-- Windows Steam paths -->
+    <RimWorldDir Condition="'$(OS)' == 'Windows_NT' And '$(RimWorldDir)' == '' And Exists('$(ProgramFiles)\Steam\steamapps\common\RimWorld')">$(ProgramFiles)\Steam\steamapps\common\RimWorld</RimWorldDir>
+    <RimWorldDir Condition="'$(OS)' == 'Windows_NT' And '$(RimWorldDir)' == '' And Exists('$(ProgramW6432)\Steam\steamapps\common\RimWorld')">$(ProgramW6432)\Steam\steamapps\common\RimWorld</RimWorldDir>
+    <RimWorldDir Condition="'$(OS)' == 'Windows_NT' And '$(RimWorldDir)' == '' And Exists('C:\Program Files (x86)\Steam\steamapps\common\RimWorld')">C:\Program Files (x86)\Steam\steamapps\common\RimWorld</RimWorldDir>
+    
+    <!-- macOS paths -->
+    <RimWorldDir Condition="'$(RimWorldDir)' == '' And Exists('$(HOME)/Library/Application Support/Steam/steamapps/common/RimWorld')">$(HOME)/Library/Application Support/Steam/steamapps/common/RimWorld</RimWorldDir>
+    
+    <!-- Set Managed directory -->
+    <RimWorldManaged>$(RimWorldDir)/RimWorldWin64_Data/Managed</RimWorldManaged>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
+
   <ItemGroup>
+    <!-- Local Harmony reference for compilation -->
     <Reference Include="0Harmony">
       <HintPath>Libraries\0Harmony.dll</HintPath>
+      <Private>False</Private>
     </Reference>
+    
+    <!-- RimWorld Assembly References -->
     <Reference Include="Assembly-CSharp">
-      <HintPath>..\..\RimWorldWin64_Data\Managed\Assembly-CSharp.dll</HintPath>
+      <HintPath>$(RimWorldManaged)\Assembly-CSharp.dll</HintPath>
+      <Private>False</Private>
     </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Runtime.InteropServices.RuntimeInformation" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
+    
+    <!-- Unity Engine References for RimWorld 1.6 -->
     <Reference Include="UnityEngine">
-      <HintPath>..\..\RimWorldWin64_Data\Managed\UnityEngine.dll</HintPath>
+      <HintPath>$(RimWorldManaged)\UnityEngine.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.CoreModule">
-      <HintPath>..\..\RimWorldWin64_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
+      <HintPath>$(RimWorldManaged)\UnityEngine.CoreModule.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.IMGUIModule">
-      <HintPath>..\..\RimWorldWin64_Data\Managed\UnityEngine.IMGUIModule.dll</HintPath>
+      <HintPath>$(RimWorldManaged)\UnityEngine.IMGUIModule.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.TextRenderingModule">
-      <HintPath>..\..\RimWorldWin64_Data\Managed\UnityEngine.TextRenderingModule.dll</HintPath>
+      <HintPath>$(RimWorldManaged)\UnityEngine.TextRenderingModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>$(RimWorldManaged)\UnityEngine.UI.dll</HintPath>
+      <Private>False</Private>
     </Reference>
   </ItemGroup>
-  <ItemGroup>
-    <WCFMetadata Include="Service References\" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Source\Data\SkillContainer.cs" />
-    <Compile Include="Source\Data\TraitContainer.cs" />
-    <Compile Include="Source\EdB-UI\SaveLoadDialog.cs" />
-    <Compile Include="Source\ExtensionMethods.cs" />
-    <Compile Include="Source\PanelOthers.cs" />
-    <Compile Include="Source\EdB-UI\Dialog_Options.cs" />
-    <Compile Include="Source\EdB-UI\ExtensionsRect.cs" />
-    <Compile Include="Source\EdB-UI\Field.cs" />
-    <Compile Include="Source\EdB-UI\IPanel.cs" />
-    <Compile Include="Source\EdB-UI\PanelBase.cs" />
-    <Compile Include="Source\EdB-UI\PanelSkills.cs" />
-    <Compile Include="Source\EdB-UI\PanelTraits.cs" />
-    <Compile Include="Source\EdB-UI\ProviderTraits.cs" />
-    <Compile Include="Source\EdB-UI\ScrollViewVertical.cs" />
-    <Compile Include="Source\EdB-UI\Style.cs" />
-    <Compile Include="Source\EdB-UI\Textures.cs" />
-    <Compile Include="Source\HarmonyPatches.cs" />
-    <Compile Include="Source\Page_RandomEditor.cs" />
-    <Compile Include="Source\PawnFilter.cs" />
-    <Compile Include="Source\Properties\AssemblyInfo.cs" />
-    <Compile Include="Source\RandomSettings.cs" />
-    <Compile Include="Source\SaveLoader.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Properties\" />
-    <Folder Include="Source\Service References\" />
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+
+  <!-- Disable warnings about missing XML documentation -->
   <PropertyGroup>
-    <PostBuildEvent>cd "$(SolutionDir)
-call "dist.bat"</PostBuildEvent>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
   </PropertyGroup>
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+
 </Project>
