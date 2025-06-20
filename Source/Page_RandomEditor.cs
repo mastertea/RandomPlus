@@ -33,7 +33,11 @@ namespace RandomPlus
             get
             {
                 // RimWorld 1.6: Apply UI scaling for Unity 2022.3 compatibility
-                float uiScale = Prefs.UIScale;
+                // Doesn't work so quick fix set multipler to 1
+                //float uiScale = Prefs.UIScale;
+
+                float uiScale = 1;
+
                 return new Vector2(694f * uiScale, (40f + 590f) * uiScale);
             }
         }

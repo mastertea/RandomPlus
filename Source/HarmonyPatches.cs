@@ -89,8 +89,11 @@ namespace RandomPlus
         public static void InjectCustomUI()
         {
             // RimWorld 1.6: Use scale-aware UI positioning
-            float uiScale = Prefs.UIScale;
-            
+            // Doesn't work so quick fix set multipler to 1
+            //float uiScale = Prefs.UIScale;
+
+            float uiScale = 1;
+
             Rect editButtonRect = new Rect(540f * uiScale, 6f * uiScale, 50f * uiScale, 30f * uiScale);
             if (ModsConfig.IsActive("hahkethomemah.simplepersonalities"))
                 editButtonRect.x -= 130f * uiScale; 
